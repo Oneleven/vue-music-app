@@ -5,7 +5,7 @@ import router from './router'
 import fastclick from 'fastclick'
 
 import 'common/css/reset.css'
-import 'common/reset.css'
+import 'common/css/border.css'
 
 fastclick.attach(document.body)
 

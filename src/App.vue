@@ -1,22 +1,26 @@
 <template>
   <div id="app">
-    <router-view/>
+    <home-header></home-header>
+    <home-nav></home-nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import HomeHeader from 'components/home-header/home-header'
+import HomeNav from 'components/nav/nav'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    HomeHeader,
+    HomeNav
+  }
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang='stylus'>
+  body
+    background-color #222
+    height 100%
 </style>
