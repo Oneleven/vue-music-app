@@ -5,8 +5,20 @@
 </template>
 
 <script>
+
+import {getRecommend} from 'api/recommend'
 export default {
-  name: 'home-recommend'
+  name: 'home-recommend',
+  created () {
+    this._getRecommend()
+  },
+  methods: {
+    _getRecommend () {
+      getRecommend().then((res) => {
+        console.log(res)
+      })
+    }
+  }
 }
 </script>
 
