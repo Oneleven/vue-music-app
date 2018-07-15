@@ -103,6 +103,9 @@ export default {
     _initDots () {
       this.dots = new Array(this.children.length)
     }
+  },
+  destroyed () {
+    clearTimeout(this.timer)
   }
 }
 </script>

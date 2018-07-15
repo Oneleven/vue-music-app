@@ -18,7 +18,7 @@
 
 <script>
 
-import { getRecommend } from 'api/recommend'
+import { getRecommend, getHotSongList } from 'api/recommend'
 import Slider from 'base/slider/slider'
 import { CODE_OK } from 'api/config'
 
@@ -34,12 +34,20 @@ export default {
   },
   created () {
     this._getRecommend()
+    this._getHotSongList()
   },
   methods: {
     _getRecommend () {
       getRecommend().then((res) => {
         if (res.code === CODE_OK) {
           this.recommends = res.data.slider
+        }
+      })
+    },
+    _getHotSongList () {
+      getHotSongList().then((res) => {
+        if (res.code === CODE_OK) {
+          console.log(res.data.list)
         }
       })
     }
