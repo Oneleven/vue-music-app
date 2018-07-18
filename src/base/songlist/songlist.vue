@@ -3,7 +3,7 @@
     <ul>
       <li v-for="group of datas" :key=group.title ref="contentlist">
         <h2 class="list-title">{{ group.title }}</h2>
-        <ul>
+        <ul class="main-content">
           <li v-for="item of group.items" :key=item.id class="item-wrapper">
             <img v-lazy=item.pic class="avatar">
             <span class="sing-name">{{ item.name }}</span>
@@ -56,6 +56,8 @@ export default {
     padding-left .4rem
     color $fontcolor
     background-color #333333
+  .main-content
+    padding-bottom .4rem
   .item-wrapper
     padding .4rem 0 0 .6rem
     .avatar
