@@ -1,6 +1,6 @@
 <template>
   <div class="singer-container">
-    singer
+    <song-list :datas="singers"></song-list>
   </div>
 </template>
 
@@ -8,9 +8,13 @@
 import getSingerList from 'api/singer'
 import { CODE_OK } from 'api/config'
 import Singer from 'common/js/singer'
+import SongList from 'base/songlist/songlist'
 
 export default {
   name: 'home-singer',
+  components: {
+    SongList
+  },
   data () {
     return {
       singers: []
@@ -23,8 +27,8 @@ export default {
     _getSingerList () {
       getSingerList().then((res) => {
         if (res.code === CODE_OK) {
-          this.singers = res.data.list
-          console.log(this._normalizeSinger(this.singers))
+          this.singers = this._normalizeSinger(res.data.list)
+          console.log(this.singers)
         }
       })
     },

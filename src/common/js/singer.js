@@ -1,3 +1,4 @@
+// 歌手列表中的类对象
 export default class Singer {
   constructor (id, name) {
     this.id = id
