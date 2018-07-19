@@ -1,5 +1,5 @@
 <template>
-  <scroll class="scroll" ref="songlist">
+  <scroll class="scroll" ref="songlist" :probe-type="probeType" >
     <ul>
       <li v-for="group of datas" :key=group.title ref="contentlist">
         <h2 class="list-title">{{ group.title }}</h2>
@@ -11,7 +11,10 @@
         </ul>
       </li>
     </ul>
-    <ul class="letter-list" @touchstart="handleTouchStart">
+    <ul class="letter-list"
+        @touchstart="handleTouchStart"
+        @touchmove.stop.prevent="handleTouchMove"
+        @touchend="handleTouchEnd">
       <li v-for="(value, index) of letterList" :key=index :data-index=index>{{ value }}</li>
     </ul>
   </scroll>
@@ -19,12 +22,22 @@
 
 <script>
 import Scroll from 'base/scroll/scroll'
+const LETTER_HEIGHT = 18
 export default {
   name: 'songlist',
   props: {
     datas: {
       type: Array,
       default: () => []
+    }
+  },
+  created () {
+    this.touch = {} // 在touch上挂载公用的状态(基础组件，所以定义在this上。里面的位置信息不需要被监听，所以定义在created中)
+    this.probeType = 3
+  },
+  data () {
+    return {
+      touchStatus: false
     }
   },
   computed: {
@@ -39,7 +52,26 @@ export default {
   },
   methods: {
     handleTouchStart (e) {
+      this.touchStatus = true
       let index = e.target.getAttribute('data-index')
+
+      this.touch.y1 = e.touches[0].pageY
+      this.touch.anchorIndex = parseInt(index)
+
+      this._scrollTo(index)
+    },
+    handleTouchMove (e) {
+      if (this.touchStatus) {
+        this.touch.y2 = e.touches[0].pageY
+        let delta = this.touch.y2 - this.touch.y1
+        let currentIndex = this.touch.anchorIndex + Math.floor(delta / LETTER_HEIGHT)
+        this._scrollTo(currentIndex)
+      }
+    },
+    handleTouchEnd () {
+      this.touchStatus = false
+    },
+    _scrollTo (index) { // _表示约定的私有方法
       this.$refs.songlist.scrollToElement(this.$refs.contentlist[index], 0)
     }
   }
