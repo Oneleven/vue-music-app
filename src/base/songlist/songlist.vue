@@ -24,12 +24,17 @@
           :data-index=index
           :class="{'active': curIndex === index}">{{ value }}</li>
     </ul>
+    <div class="title-fixed" v-show="fixedContent" ref="fixed">
+      <h2>{{fixedContent}}</h2>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll'
 const LETTER_HEIGHT = 18
+const TITLE_HEIGHT = 30
+
 export default {
   name: 'songlist',
   props: {
@@ -48,7 +53,8 @@ export default {
     return {
       touchStatus: false,
       scrollY: -1,
-      curIndex: 0
+      curIndex: 0,
+      dif: -1
     }
   },
   computed: {
@@ -56,6 +62,12 @@ export default {
       return this.datas.map((value) => {
         return value.title.substr(0, 1)
       })
+    },
+    fixedContent () {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.datas[this.curIndex] ? this.datas[this.curIndex].title : ''
     }
   },
   components: {
@@ -83,6 +95,7 @@ export default {
       this.touchStatus = false
     },
     _scrollTo (index) { // _表示约定的私有方法
+      this.scrollY = -this.listHeight[index]
       this.$refs.songlist.scrollToElement(this.$refs.contentlist[index], 0)
     },
     scroll (pos) {
@@ -97,7 +110,6 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-      console.log(this.listHeight)
     }
   },
   watch: {
@@ -106,7 +118,7 @@ export default {
         this._calcHeight()
       }, 20)
     },
-    scrollY (newY) {
+    scrollY (newY) { // 这里的newY即实时滚动时pos.y
       const listHeight = this.listHeight
       // 监听的scroll事件中的pos.y是负值，如果大于顶部，newY>0
       if (newY > 0) {
@@ -117,8 +129,10 @@ export default {
       for (let i = 0; i < listHeight.length; i++) {
         let height1 = listHeight[i]
         let height2 = listHeight[i + 1]
-        if (-newY > height1 && -newY < height2) {
+        if (-newY >= height1 && -newY < height2) {
           this.curIndex = i
+          // 设置title
+          this.dif = height2 + newY
         }
       }
       // 超出底部位置
@@ -127,6 +141,10 @@ export default {
       if (-newY > maxHeight) {
         this.curIndex = maxIndex
       }
+    },
+    dif (newDif) {
+      let top = (newDif > 0 && newDif < TITLE_HEIGHT) ? newDif - TITLE_HEIGHT : 0
+      this.$refs.fixed.style.transform = `translateY(${top}px)`
     }
   }
 }
@@ -137,6 +155,7 @@ export default {
 .scroll
   height 100%
   overflow hidden
+  position relative
   .list-title
     line-height .6rem
     padding-left .4rem
@@ -169,4 +188,15 @@ export default {
       text-align center
     .active
       color $maincolor
+  .title-fixed
+    position absolute
+    width 100%
+    top 0
+    left 0
+    background-color #222
+    h2
+      line-height .6rem
+      padding-left .4rem
+      color $fontcolor
+      background-color #333333
 </style>
