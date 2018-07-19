@@ -20,6 +20,10 @@ export default {
     data: {
       type: Array,
       default: null
+    },
+    listenScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted () {
@@ -36,6 +40,13 @@ export default {
         probeType: this.probeType,
         click: this.click
       })
+
+      if (this.listenScroll) { // 监听滚动事件，把pos事实位置派发给父组件
+        let _this = this
+        this.scroll.on('scroll', (pos) => {
+          _this.$emit('scroll', pos)
+        })
+      }
     },
     enable () {
       this.scroll && this.scroll.enable()

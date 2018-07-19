@@ -1,5 +1,9 @@
 <template>
-  <scroll class="scroll" ref="songlist" :probe-type="probeType" >
+  <scroll class="scroll"
+          ref="songlist"
+          :probe-type="probeType"
+          :listen-scroll="listenScroll"
+          @scroll="scroll">
     <ul>
       <li v-for="group of datas" :key=group.title ref="contentlist">
         <h2 class="list-title">{{ group.title }}</h2>
@@ -15,7 +19,10 @@
         @touchstart="handleTouchStart"
         @touchmove.stop.prevent="handleTouchMove"
         @touchend="handleTouchEnd">
-      <li v-for="(value, index) of letterList" :key=index :data-index=index>{{ value }}</li>
+      <li v-for="(value, index) of letterList"
+          :key=index
+          :data-index=index
+          :class="{'active': curIndex === index}">{{ value }}</li>
     </ul>
   </scroll>
 </template>
@@ -34,10 +41,14 @@ export default {
   created () {
     this.touch = {} // 在touch上挂载公用的状态(基础组件，所以定义在this上。里面的位置信息不需要被监听，所以定义在created中)
     this.probeType = 3
+    this.listenScroll = true
+    this.listHeight = []
   },
   data () {
     return {
-      touchStatus: false
+      touchStatus: false,
+      scrollY: -1,
+      curIndex: 0
     }
   },
   computed: {
@@ -73,6 +84,49 @@ export default {
     },
     _scrollTo (index) { // _表示约定的私有方法
       this.$refs.songlist.scrollToElement(this.$refs.contentlist[index], 0)
+    },
+    scroll (pos) {
+      this.scrollY = pos.y
+    },
+    _calcHeight () {
+      let list = this.$refs.contentlist
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < list.length; i++) {
+        let item = list[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+      console.log(this.listHeight)
+    }
+  },
+  watch: {
+    datas () { // 当datas的值传进来的时候，监听变化触发计算高度的事件，且只有传值变化的时候才会重新计算
+      setTimeout(() => {
+        this._calcHeight()
+      }, 20)
+    },
+    scrollY (newY) {
+      const listHeight = this.listHeight
+      // 监听的scroll事件中的pos.y是负值，如果大于顶部，newY>0
+      if (newY > 0) {
+        this.curIndex = 0
+        return
+      }
+      // 滚动到中间位置
+      for (let i = 0; i < listHeight.length; i++) {
+        let height1 = listHeight[i]
+        let height2 = listHeight[i + 1]
+        if (-newY > height1 && -newY < height2) {
+          this.curIndex = i
+        }
+      }
+      // 超出底部位置
+      let maxIndex = listHeight.length - 1
+      let maxHeight = listHeight[maxIndex]
+      if (-newY > maxHeight) {
+        this.curIndex = maxIndex
+      }
     }
   }
 }
@@ -113,4 +167,6 @@ export default {
       width .4rem
       font-size .24rem
       text-align center
+    .active
+      color $maincolor
 </style>
