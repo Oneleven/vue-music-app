@@ -1,6 +1,8 @@
 <template>
   <div class="singer-container">
-    <song-list :datas="singers"></song-list>
+    <song-list :datas="singers"
+               @selectedItem="selectedSinger"></song-list>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -9,6 +11,7 @@ import getSingerList from 'api/singer'
 import { CODE_OK } from 'api/config'
 import Singer from 'common/js/singer'
 import SongList from 'base/songlist/songlist'
+import {mapMutations} from 'vuex'
 
 export default {
   name: 'home-singer',
@@ -32,6 +35,7 @@ export default {
         }
       })
     },
+
     _normalizeSinger (list) {
       let hotMap = {
         hot: {
@@ -68,12 +72,25 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       return hot.concat(normal)
-    }
+    },
+
+    selectedSinger (item) {
+      this.$router.push({
+        path: `/singer/${item.id}`
+      })
+      this.setSinger(item)
+    },
+
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    })
   }
 }
 </script>
 
 <style scoped lang='stylus'>
+@import '~common/css/global.styl'
+
 .singer-container
   position: fixed
   width: 100%

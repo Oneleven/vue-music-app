@@ -8,7 +8,10 @@
       <li v-for="group of datas" :key=group.title ref="contentlist">
         <h2 class="list-title">{{ group.title }}</h2>
         <ul class="main-content">
-          <li v-for="item of group.items" :key=item.id class="item-wrapper">
+          <li v-for="item of group.items"
+              :key=item.id
+              class="item-wrapper"
+              @click="selectItem(item)">
             <img v-lazy=item.pic class="avatar">
             <span class="sing-name">{{ item.name }}</span>
           </li>
@@ -110,6 +113,9 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
+    },
+    selectItem (item) {
+      this.$emit('selectedItem', item)
     }
   },
   watch: {
