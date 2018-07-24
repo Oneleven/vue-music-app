@@ -21,7 +21,7 @@
             </div>
           </li>
         </ul>
-        <loading v-if="!hotSongList.length"></loading>
+        <loading v-if="!hotSongList.length" class="loading"></loading>
       </div>
     </scroll>
   </div>
@@ -116,4 +116,6 @@ export default {
             line-height .4rem
             color $fontcolor
             ellipsis()
+    .loading
+      height calc(100vh - 3.06rem - 40vw)
 </style>

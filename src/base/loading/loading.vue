@@ -19,7 +19,7 @@ export default {
 
 <style scoped lang='stylus'>
 .loading
-  height calc(100vh - 3.06rem - 40vw)
+  height 100%
   display flex
   justify-content center
   align-items center

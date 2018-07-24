@@ -8,10 +8,12 @@
           </div>
         </li>
     </ul>
+    <loading v-if="!songs.length" class="loading"></loading>
   </div>
 </template>
 
 <script>
+import loading from 'base/loading/loading'
 
 export default {
   name: 'song-list',
@@ -21,6 +23,10 @@ export default {
       type: Array,
       default: () => []
     }
+  },
+
+  components: {
+    loading
   },
 
   methods: {
@@ -49,5 +55,6 @@ export default {
       color $fontcolor
       line-height .4rem
       margin-top .08rem
-
+.loading
+  height calc(100vh - 5.2rem)
 </style>

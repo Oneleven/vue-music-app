@@ -1,9 +1,18 @@
 <template>
   <div>
     <div class="music-list-wrapper">
-      <div class="bg-image" :style="bgStyle"></div>
+      <div class="bg-image" :style="bgStyle" ref="bgimage">
+        <div class="play">
+          <div class="play-wrapper">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-bofang"></use>
+            </svg>
+            <span>随机播放全部</span>
+          </div>
+        </div>
+      </div>
       <div class="header">
-        <svg class="icon fanhui" aria-hidden="true">
+        <svg class="icon fanhui" aria-hidden="true" @click = "back">
             <use xlink:href="#icon-jiantouzuo1"></use>
         </svg>
         <h2 v-html="title"></h2>
@@ -14,7 +23,7 @@
               :listen-scroll="listenScroll"
               @scroll="scroll"
               ref="scrollwrapper">
-        <song-list :songs="songs" class="song-list-container" ref="a"></song-list>
+        <song-list :songs="songs" class="song-list-container" ref="songs"></song-list>
       </scroll>
     </div>
   </div>
@@ -24,8 +33,11 @@
 <script>
 import scroll from 'base/scroll/scroll'
 import songList from 'base/song-list/song-list'
+import { prefixStyle } from 'common/js/dom'
 
 const MIN_TOP = 40
+const Transform = prefixStyle('transform')
+
 export default {
   name: 'music-list',
 
@@ -69,20 +81,33 @@ export default {
   methods: {
     scroll (pos) {
       this.scrollY = pos.y
+    },
+    back () {
+      this.$router.back()
     }
   },
 
   watch: {
     scrollY (newy) {
-      if (-newy < 260 - MIN_TOP) {
+      if (-newy < 260 - MIN_TOP && -newy >= 0) {
         this.$refs.scrollwrapper.$el.style['top'] = `5.2rem`
         this.$refs.scrollwrapper.$el.style['overflow'] = 'visible'
-        this.$refs.a.$el.style['padding-top'] = `0px`
+        this.$refs.songs.$el.style['padding-top'] = `0px`
+        this.$refs.bgimage.style['filter'] = 'blur(' + Math.min(10, (-newy / 260) * 10) + 'px)'
       }
-      if (-newy >= 260 - MIN_TOP) {
+      if (-newy >= 260 - MIN_TOP && -newy <= 480 - MIN_TOP) {
         this.$refs.scrollwrapper.$el.style['top'] = MIN_TOP + 'px'
-        this.$refs.a.$el.style['padding-top'] = `220px`
+        this.$refs.songs.$el.style['padding-top'] = `220px`
         this.$refs.scrollwrapper.$el.style['overflow'] = 'hidden'
+      }
+      if (-newy > 480 - MIN_TOP) {
+        this.$refs.scrollwrapper.$el.style['top'] = MIN_TOP + 'px'
+        this.$refs.songs.$el.style['padding-top'] = `0px`
+        this.$refs.scrollwrapper.$el.style['overflow'] = 'hidden'
+      }
+      if (newy > 0) {
+        this.$refs.bgimage.style[Transform] = 'scale(' + (newy + 260) / 260 + ')'
+        console.log(this.$refs.bgimage.style)
       }
     }
   }
@@ -109,8 +134,8 @@ export default {
     align-items center
     line-height .8rem
     &::after
-      content ''
       display block
+      content ''
       height .9rem
       width .9rem
     h2
@@ -133,13 +158,36 @@ export default {
   .bg-image
     height 5.2rem
     background-size: cover
-    &::after
+    position relative
+    &::before
       content ''
       position absolute
       top 0
       width 100%
       height 5.2rem
       background-color rgba(7,17,27,.2)
+    .play
+      height .64rem
+      position absolute
+      bottom .4rem
+      width 100%
+      .play-wrapper
+        display flex
+        align-items center
+        justify-content center
+        line-height 100%
+        margin 0 auto
+        width 3rem
+        border 1px solid $maincolor
+        border-radius 2rem
+        .icon
+          width .35rem
+          height .35rem
+          color $maincolor
+        span
+          color $maincolor
+          font-size .24rem
+          padding-right .2rem
 .icon
   iconfontStyle()
   width .5rem

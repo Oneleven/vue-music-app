@@ -30,28 +30,34 @@
     <div class="title-fixed" v-show="fixedContent" ref="fixed">
       <h2>{{fixedContent}}</h2>
     </div>
+    <loading v-if="!datas.length" class="loading"></loading>
   </scroll>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll'
+import loading from 'base/loading/loading'
+
 const LETTER_HEIGHT = 18
 const TITLE_HEIGHT = 30
 
 export default {
   name: 'songlist',
+
   props: {
     datas: {
       type: Array,
       default: () => []
     }
   },
+
   created () {
     this.touch = {} // 在touch上挂载公用的状态(基础组件，所以定义在this上。里面的位置信息不需要被监听，所以定义在created中)
     this.probeType = 3
     this.listenScroll = true
     this.listHeight = []
   },
+
   data () {
     return {
       touchStatus: false,
@@ -60,6 +66,7 @@ export default {
       dif: -1
     }
   },
+
   computed: {
     letterList () {
       return this.datas.map((value) => {
@@ -73,9 +80,12 @@ export default {
       return this.datas[this.curIndex] ? this.datas[this.curIndex].title : ''
     }
   },
+
   components: {
-    Scroll
+    Scroll,
+    loading
   },
+
   methods: {
     handleTouchStart (e) {
       this.touchStatus = true
@@ -118,6 +128,7 @@ export default {
       this.$emit('selectedItem', item)
     }
   },
+
   watch: {
     datas () { // 当datas的值传进来的时候，监听变化触发计算高度的事件，且只有传值变化的时候才会重新计算
       setTimeout(() => {
