@@ -26,7 +26,7 @@ export function getSongList (singerId) {
     singermid: singerId,
     order: 'listen',
     begin: 0,
-    num: 30,
+    num: 60,
     songstatus: 1
   })
   return jsonp(url, params, options)

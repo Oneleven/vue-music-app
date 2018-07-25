@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="header">
-        <svg class="icon fanhui" aria-hidden="true" @click = "back">
+        <svg class="icon" aria-hidden="true" @click = "back">
             <use xlink:href="#icon-jiantouzuo1"></use>
         </svg>
         <h2 v-html="title"></h2>
@@ -23,7 +23,10 @@
               :listen-scroll="listenScroll"
               @scroll="scroll"
               ref="scrollwrapper">
-        <song-list :songs="songs" class="song-list-container" ref="songs"></song-list>
+        <song-list :songs="songs"
+                   class="song-list-container"
+                   ref="songs"
+                   @playSong = "playingSong"></song-list>
       </scroll>
     </div>
   </div>
@@ -34,6 +37,7 @@
 import scroll from 'base/scroll/scroll'
 import songList from 'base/song-list/song-list'
 import { prefixStyle } from 'common/js/dom'
+import { mapActions } from 'vuex'
 
 const MIN_TOP = 40
 const Transform = prefixStyle('transform')
@@ -84,7 +88,18 @@ export default {
     },
     back () {
       this.$router.back()
-    }
+    },
+    playingSong (song, index) { // 这个点击事件会派发多个commit事件，要改变state中的fullScreen,playing等，因此封装在actions中
+      console.log(index)
+      console.log(song)
+      this.playSong({
+        list: this.songs,
+        index
+      })
+    },
+    ...mapActions([
+      'playSong'
+    ])
   },
 
   watch: {
@@ -107,7 +122,6 @@ export default {
       }
       if (newy > 0) {
         this.$refs.bgimage.style[Transform] = 'scale(' + (newy + 260) / 260 + ')'
-        console.log(this.$refs.bgimage.style)
       }
     }
   }

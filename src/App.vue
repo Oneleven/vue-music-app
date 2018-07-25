@@ -5,18 +5,21 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
+    <player></player>
   </div>
 </template>
 
 <script>
 import HomeHeader from 'components/home-header/home-header'
 import HomeNav from 'components/nav/nav'
+import Player from 'components/player/player'
 
 export default {
   name: 'App',
   components: {
     HomeHeader,
-    HomeNav
+    HomeNav,
+    Player
   }
 }
 </script>

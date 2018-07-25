@@ -1,7 +1,7 @@
 <template>
   <div class="songlist-wrapper">
     <ul class="songlist-container">
-        <li v-for="song of songs" :key="song.id">
+        <li v-for="(song, index) of songs" :key="song.id" @click="playSong(song, index)">
           <div class="song-content">
             <h2>{{ song.name }}</h2>
             <p class="desc">{{ getDesk(song) }}</p>
@@ -32,6 +32,9 @@ export default {
   methods: {
     getDesk (song) {
       return `${song.singer}·${song.album}`
+    },
+    playSong (song, index) {
+      this.$emit('playSong', song, index) // 基础组件不写逻辑，把数据派发给父组件
     }
   }
 }
