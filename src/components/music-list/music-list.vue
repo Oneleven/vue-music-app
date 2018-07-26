@@ -90,8 +90,6 @@ export default {
       this.$router.back()
     },
     playingSong (song, index) { // 这个点击事件会派发多个commit事件，要改变state中的fullScreen,playing等，因此封装在actions中
-      console.log(index)
-      console.log(song)
       this.playSong({
         list: this.songs,
         index

@@ -1,6 +1,7 @@
 <template>
   <div class = "player-wrapper" v-show="playlist.length > 0">
-    <transition name="normal">
+    <transition name="normal"
+                @enter = "enter">
       <div class="normal-player" v-show="fullScreen">
         <div class="top">
           <div class="title">
@@ -13,7 +14,7 @@
         </div>
         <div class="middle">
           <div class="cd-wrapper">
-            <img :src="currentSong.image" alt="">
+            <img :src="currentSong.image" ref="image" :class="cdClass">
           </div>
           <p class="lyric">歌词</p>
         </div>
@@ -25,7 +26,10 @@
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-houtui-copy"></use>
             </svg>
-            <svg class="icon center-icon" aria-hidden="true">
+            <svg class="icon center-icon1" aria-hidden="true" @click= "togglePlaying" v-show= playing>
+                <use xlink:href="#icon-zanting1"></use>
+            </svg>
+            <svg class="icon center-icon" aria-hidden="true" @click= "togglePlaying" v-show= !playing>
                 <use xlink:href="#icon-bofang"></use>
             </svg>
             <svg class="icon" aria-hidden="true">
@@ -43,15 +47,18 @@
           v-show="!fullScreen"
           @click = "handleShow">
         <div class="left">
-          <img :src="currentSong.image" alt="">
+          <img :src="currentSong.image">
           <div class="text">
             <h2 class="name" v-html="currentSong.name"></h2>
             <p class="desc" v-html="currentSong.singer">xxx</p>
           </div>
         </div>
         <div class="right">
-          <svg class="icon player" aria-hidden="true">
+          <svg class="icon player" aria-hidden="true" v-show= !playing @click.stop= "togglePlaying">
             <use xlink:href="#icon-bofang"></use>
+          </svg>
+          <svg class="icon player" aria-hidden="true" v-show= playing @click.stop= "togglePlaying">
+            <use xlink:href="#icon-zanting3"></use>
           </svg>
           <svg class="icon songlist" aria-hidden="true">
             <use xlink:href="#icon-xiangqing"></use>
@@ -59,11 +66,13 @@
         </div>
       </div>
     </transition>
+    <audio :src="currentSong.url" ref="audio"></audio>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import Velocity from 'velocity-animate'
 
 export default {
   name: 'player',
@@ -72,8 +81,25 @@ export default {
     ...mapGetters([
       'fullScreen',
       'playlist',
-      'currentSong'
-    ])
+      'currentSong',
+      'playing'
+    ]),
+    cdClass () {
+      return this.playing ? 'startIt' : 'stopIt'
+    }
+  },
+
+  watch: {
+    currentSong () {
+      this.$nextTick(() => { // 延时
+        this.$refs.audio.play()
+      })
+    },
+    playing (playingState) {
+      this.$nextTick(() => {
+        playingState ? this.$refs.audio.play() : this.$refs.audio.pause()
+      })
+    }
   },
 
   methods: {
@@ -83,9 +109,32 @@ export default {
     handleShow () {
       this.setFullScreen(true)
     },
+
+    togglePlaying () {
+      this.setPlayingState(!this.playing)
+    },
+
     ...mapMutations({
-      setFullScreen: 'SET_FULLSCREEN'
-    })
+      setFullScreen: 'SET_FULLSCREEN',
+      setPlayingState: 'SET_PLAYING_STATE'
+    }),
+
+    // 设置动画
+    enter (el, done) {
+      Velocity(this.$refs.image, {
+        scale: 1.1
+      }, {
+        duration: 250,
+        easing: 'linear'
+      })
+      Velocity(this.$refs.image, {
+        scale: 1.0
+      }, {
+        duration: 100,
+        easing: 'linear',
+        complete: done
+      })
+    }
   }
 }
 </script>
@@ -94,7 +143,6 @@ export default {
 @import '~common/css/global.styl'
 @import '~common/css/mixin.styl'
 
-.player-wrapper
   .normal-player
     position fixed
     top 0
@@ -137,6 +185,10 @@ export default {
           border-radius 50%
           border 10px solid rgba(255, 255, 255, 0.1)
           height 100%
+        .stopIt
+          animation-play-state: pause
+        .startIt
+          animation rotate 20s linear infinite
       .lyric
         line-height .4rem
         margin-top .6rem
@@ -155,6 +207,10 @@ export default {
         align-items center
         justify-content space-around
         .center-icon
+          height .8rem
+          width .8rem
+          text-align center
+        .center-icon1
           height .8rem
           width .8rem
           text-align center
@@ -204,10 +260,27 @@ export default {
 .normal-enter, .normal-leave-to
   opacity 0
   .top
-    // transform: translate3d(0, -100px, 0)
-    opacity 0
+    transform: translate3d(0, -70px, 0)
+  .bottom
+    transform: translate3d(0, 100px, 0)
 .normal-enter-active, .normal-leave-to
-  transition opacity .5s
+  transition opacity .4s
   .top
-    transition: all .5s
+    transition: all .4s
+  .bottom
+    transition: all .4s
+.mini-enter, .mini-leave-to
+  opacity 0
+.mini-enter-active, .mini-leave-active
+  transition opacity .4s
+
+// 设置专辑图片旋转
+@keyframes rotate {
+  0% {
+    transform rotate(0)
+  }
+  100% {
+    transform rotate(360deg)
+  }
+}
 </style>
