@@ -72,8 +72,8 @@ export default {
 @import '~common/css/global.styl'
 
 .slide-enter, .slide-leave-to
-  transform translateX(100%)
+  transform: translateX(200px)
 .slide-enter-active, .slide-leave-active
-  transition transform .5s
+  transition all 1s
 
 </style>

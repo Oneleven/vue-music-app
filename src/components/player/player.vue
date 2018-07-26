@@ -1,67 +1,91 @@
 <template>
   <div class = "player-wrapper" v-show="playlist.length > 0">
-    <div class="normal-player" v-show="fullScreen">
-      <div class="top">
-        <div class="title">
-          <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-jiantou-copy"></use>
-          </svg>
-          <h1>这是一首哥</h1>
+    <transition name="normal">
+      <div class="normal-player" v-show="fullScreen">
+        <div class="top">
+          <div class="title">
+            <svg class="icon" aria-hidden="true" @click = "handleShrink">
+                <use xlink:href="#icon-jiantou-copy"></use>
+            </svg>
+            <h1 v-html="currentSong.name"></h1>
+          </div>
+          <h2 class="singer" v-html="currentSong.singer"></h2>
         </div>
-        <h2 class="singer">小雪</h2>
-      </div>
-      <div class="middle">
-        <div class="cd-wrapper">
-          <img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000004RThJi4G1v0A.jpg?max_age=2592000" alt="">
+        <div class="middle">
+          <div class="cd-wrapper">
+            <img :src="currentSong.image" alt="">
+          </div>
+          <p class="lyric">歌词</p>
         </div>
-        <p class="lyric">歌词</p>
+        <div class="bottom">
+          <div class="operators">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-ttpodicon"></use>
+            </svg>
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-houtui-copy"></use>
+            </svg>
+            <svg class="icon center-icon" aria-hidden="true">
+                <use xlink:href="#icon-bofang"></use>
+            </svg>
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-kuaijin"></use>
+            </svg>
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-aixin1"></use>
+            </svg>
+          </div>
+        </div>
       </div>
-      <div class="bottom">
-        <div class="operators">
-          <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-ttpodicon"></use>
+    </transition>
+    <transition name="mini">
+      <div class="mini-player"
+          v-show="!fullScreen"
+          @click = "handleShow">
+        <div class="left">
+          <img :src="currentSong.image" alt="">
+          <div class="text">
+            <h2 class="name" v-html="currentSong.name"></h2>
+            <p class="desc" v-html="currentSong.singer">xxx</p>
+          </div>
+        </div>
+        <div class="right">
+          <svg class="icon player" aria-hidden="true">
+            <use xlink:href="#icon-bofang"></use>
           </svg>
-          <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-houtui-copy"></use>
-          </svg>
-          <svg class="icon center-icon" aria-hidden="true">
-              <use xlink:href="#icon-bofang"></use>
-          </svg>
-          <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-kuaijin"></use>
-          </svg>
-          <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-aixin1"></use>
+          <svg class="icon songlist" aria-hidden="true">
+            <use xlink:href="#icon-xiangqing"></use>
           </svg>
         </div>
       </div>
-    </div>
-    <div class="mini-player" v-show="!fullScreen">
-      <img src="" alt="">
-      <div class="text">
-        <h2 class="name">周杰伦</h2>
-        <p class="desc">xxx</p>
-      </div>
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-bofang"></use>
-      </svg>
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-xiangqing"></use>
-      </svg>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'player',
+
   computed: {
     ...mapGetters([
       'fullScreen',
-      'playlist'
+      'playlist',
+      'currentSong'
     ])
+  },
+
+  methods: {
+    handleShrink () {
+      this.setFullScreen(false)
+    },
+    handleShow () {
+      this.setFullScreen(true)
+    },
+    ...mapMutations({
+      setFullScreen: 'SET_FULLSCREEN'
+    })
   }
 }
 </script>
@@ -71,15 +95,13 @@ export default {
 @import '~common/css/mixin.styl'
 
 .player-wrapper
-  position fixed
-  top 0
-  bottom 0
-  left 0
-  right 0
-  background-color #ddd
   .normal-player
-    position relative
-    height 100%
+    position fixed
+    top 0
+    bottom 0
+    left 0
+    right 0
+    background-color $backcolor
     .top
       height 1.2rem
       margin-bottom .5rem
@@ -100,16 +122,16 @@ export default {
           ellipsis()
           flex 1
           text-align center
+          color #ffffff
       .singer
         text-align center
         line-height .4rem
+        color #ffffff
     .middle
       height 8.34rem
-      border 1px solid black
       .cd-wrapper
         height 80vw
         text-align center
-        border 1px solid black
         img
           box-sizing border-box
           border-radius 50%
@@ -119,6 +141,7 @@ export default {
         line-height .4rem
         margin-top .6rem
         text-align center
+        color $fontcolor
     .bottom
       position absolute
       bottom 1rem
@@ -135,9 +158,56 @@ export default {
           height .8rem
           width .8rem
           text-align center
+  .mini-player
+    position fixed
+    bottom 0
+    width 100%
+    height 1.2rem
+    display flex
+    justify-content space-between
+    background-color #333333
+    .left
+      display flex
+      align-items center
+      img
+        height .8rem
+        width .8rem
+        border-radius 50%
+        padding 0 .2rem 0 .4rem
+      .text
+        .name
+          color #ffffff
+          font-size .28rem
+          line-height .4rem
+        .desc
+          color $fontcolor
+          font-size .24rem
+          line-height .4rem
+    .right
+      display flex
+      align-items center
+      .songlist
+        width 1rem
+        height 1rem
+        color rgba(255,205,49,.5)
+        padding-top .2rem
+      .player
+        color rgba(255,205,49,.5)
+        width .65rem
+        height .65rem
 .icon
   iconfontStyle()
   color $maincolor
   width .6rem
   height .6rem
+
+.normal-enter, .normal-leave-to
+  opacity 0
+  .top
+    // transform: translate3d(0, -100px, 0)
+    opacity 0
+.normal-enter-active, .normal-leave-to
+  transition opacity .5s
+  .top
+    transition: all .5s
 </style>
