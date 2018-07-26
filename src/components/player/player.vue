@@ -85,7 +85,7 @@ export default {
       'playing'
     ]),
     cdClass () {
-      return this.playing ? 'startIt' : 'stopIt'
+      return this.playing ? 'startIt' : 'startIt stopIt'
     }
   },
 
@@ -185,10 +185,10 @@ export default {
           border-radius 50%
           border 10px solid rgba(255, 255, 255, 0.1)
           height 100%
-        .stopIt
-          animation-play-state: pause
         .startIt
           animation rotate 20s linear infinite
+        .stopIt
+          animation-play-state: paused
       .lyric
         line-height .4rem
         margin-top .6rem
