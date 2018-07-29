@@ -3,6 +3,9 @@
     <transition name="normal"
                 @enter = "enter">
       <div class="normal-player" v-show="fullScreen">
+        <div class="background">
+          <img :src="currentSong.image">
+        </div>
         <div class="top">
           <div class="title">
             <svg class="icon" aria-hidden="true" @click = "handleShrink">
@@ -14,25 +17,32 @@
         </div>
         <div class="middle">
           <div class="cd-wrapper">
-            <img :src="currentSong.image" ref="image" :class="cdClass">
+            <img :src="currentSong.image" ref="image" class="scaleImage" :class="cdClass">
           </div>
           <p class="lyric">歌词</p>
         </div>
         <div class="bottom">
+          <div class="progress_wrapper">
+            <span class="left-time">{{ format(curTime) }}</span>
+            <progress-bar class="progress-bar"
+                          :persent="persent"
+                          @changePercent= "changePercent"></progress-bar>
+            <span class="right-time">{{ format(currentSong.duration) }}</span>
+          </div>
           <div class="operators">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-ttpodicon"></use>
             </svg>
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon left-icon" aria-hidden="true" @click= "handlePre" :class= "disableCls">
                 <use xlink:href="#icon-houtui-copy"></use>
             </svg>
-            <svg class="icon center-icon1" aria-hidden="true" @click= "togglePlaying" v-show= playing>
+            <svg class="icon center-icon1" aria-hidden="true" @click= "togglePlaying" v-show= "playing" :class= "disableCls">
                 <use xlink:href="#icon-zanting1"></use>
             </svg>
-            <svg class="icon center-icon" aria-hidden="true" @click= "togglePlaying" v-show= !playing>
+            <svg class="icon center-icon" aria-hidden="true" @click= "togglePlaying" v-show= "!playing">
                 <use xlink:href="#icon-bofang"></use>
             </svg>
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon right-icon" aria-hidden="true" @click= "handleNext" :class= "disableCls">
                 <use xlink:href="#icon-kuaijin"></use>
             </svg>
             <svg class="icon" aria-hidden="true">
@@ -66,26 +76,49 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url"
+           ref="audio"
+           @canplay= "ready"
+           @error= "err"
+           @timeupdate= "updateTime" ></audio>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import Velocity from 'velocity-animate'
+import ProgressBar from 'base/progress-bar/progress-bar'
 
 export default {
   name: 'player',
+
+  data () {
+    return {
+      songReady: false,
+      curTime: 0
+    }
+  },
+
+  components: {
+    ProgressBar
+  },
 
   computed: {
     ...mapGetters([
       'fullScreen',
       'playlist',
       'currentSong',
-      'playing'
+      'playing',
+      'currentIndex'
     ]),
     cdClass () {
       return this.playing ? 'startIt' : 'startIt stopIt'
+    },
+    disableCls () {
+      return this.songReady ? '' : 'disable'
+    },
+    persent () {
+      return this.curTime / this.currentSong.duration
     }
   },
 
@@ -114,21 +147,90 @@ export default {
       this.setPlayingState(!this.playing)
     },
 
+    updateTime (e) {
+      this.curTime = e.target.currentTime
+    },
+
+    // 设置progress-bar拖动改变歌曲进度
+    changePercent (percent) {
+      this.$refs.audio.currentTime = percent * this.currentSong.duration
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+    },
+
+    format (interval) {
+      let minute = (interval / 60) | 0
+      let seconds = (interval | 0) % 60
+      return `${minute}:${this._pad(seconds)}`
+    },
+
+    _pad (num, n = 2) {
+      let length = num.toString().length
+      if (length < n) {
+        return `0${num}`
+      } else {
+        return num
+      }
+    },
+
     ...mapMutations({
       setFullScreen: 'SET_FULLSCREEN',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setPre: 'SET_CURRENT_INDEX',
+      setNext: 'SET_CURRENT_INDEX'
     }),
+
+    // 限制用户过快切换歌曲
+    ready () {
+      this.songReady = true
+    },
+    err () {
+      this.songReady = true
+    },
+
+    // 设置跳转歌曲
+    handlePre () {
+      if (!this.songReady) {
+        return
+      }
+      let curIndex = this.currentIndex - 1
+      if (curIndex === -1) {
+        curIndex = this.playlist.length - 1
+      }
+      this.setPre(curIndex)
+      this.setPlayingState(true)
+
+      this.songReady = false
+    },
+    handleNext () {
+      if (!this.songReady) {
+        return
+      }
+      let curIndex = this.currentIndex + 1
+      if (curIndex === this.playlist.length) {
+        curIndex = 0
+      }
+      this.setNext(curIndex)
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      if (!this.songReady) {
+        return
+      }
+      this.songReady = false
+    },
 
     // 设置动画
     enter (el, done) {
       Velocity(this.$refs.image, {
-        scale: 1.1
+        scale: 1.2
       }, {
         duration: 250,
         easing: 'linear'
       })
       Velocity(this.$refs.image, {
-        scale: 1.0
+        scale: 1
       }, {
         duration: 100,
         easing: 'linear',
@@ -150,6 +252,18 @@ export default {
     left 0
     right 0
     background-color $backcolor
+    .background
+      position absolute
+      top 0
+      left 0
+      height 100%
+      width 100%
+      opacity .6
+      filter blur(20px)
+      z-index -1
+      img
+        width 100%
+        height 100%
     .top
       height 1.2rem
       margin-bottom .5rem
@@ -199,13 +313,29 @@ export default {
       bottom 1rem
       width 100%
       display flex
-      justify-content center
-      .operators
-        height .8rem
-        width 80%
+      align-items center
+      flex-direction column
+      .progress_wrapper
+        height .6rem
+        color #ffffff
+        width 70%
         display flex
         align-items center
-        justify-content space-around
+        padding-bottom .2rem
+        .progress-bar
+          flex 1
+        .left-time
+          padding-right .1rem
+        .right-time
+          padding-left .1rem
+      .operators
+        height .8rem
+        width 70%
+        display flex
+        align-items center
+        justify-content space-between
+        .disable
+          color $fontcolor
         .center-icon
           height .8rem
           width .8rem
@@ -214,6 +344,10 @@ export default {
           height .8rem
           width .8rem
           text-align center
+        .left-icon
+          padding-left 3vw
+        .right-icon
+          padding-right 3vw
   .mini-player
     position fixed
     bottom 0
@@ -283,4 +417,5 @@ export default {
     transform rotate(360deg)
   }
 }
+
 </style>
