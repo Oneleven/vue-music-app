@@ -30,8 +30,14 @@
             <span class="right-time">{{ format(currentSong.duration) }}</span>
           </div>
           <div class="operators">
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon" aria-hidden="true" v-show= "this.mode === 0" @click= "changeMode">
                 <use xlink:href="#icon-ttpodicon"></use>
+            </svg>
+            <svg class="icon" aria-hidden="true" v-show= "this.mode === 1" @click= "changeMode">
+                <use xlink:href="#icon-xunhuan"></use>
+            </svg>
+            <svg class="icon" aria-hidden="true" v-show= "this.mode === 2" @click= "changeMode">
+                <use xlink:href="#icon-suiji"></use>
             </svg>
             <svg class="icon left-icon" aria-hidden="true" @click= "handlePre" :class= "disableCls">
                 <use xlink:href="#icon-houtui-copy"></use>
@@ -109,7 +115,8 @@ export default {
       'playlist',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode'
     ]),
     cdClass () {
       return this.playing ? 'startIt' : 'startIt stopIt'
@@ -151,6 +158,12 @@ export default {
       this.curTime = e.target.currentTime
     },
 
+    // 设置三种播放模式
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setMode(mode)
+    },
+
     // 设置progress-bar拖动改变歌曲进度
     changePercent (percent) {
       this.$refs.audio.currentTime = percent * this.currentSong.duration
@@ -178,7 +191,8 @@ export default {
       setFullScreen: 'SET_FULLSCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
       setPre: 'SET_CURRENT_INDEX',
-      setNext: 'SET_CURRENT_INDEX'
+      setNext: 'SET_CURRENT_INDEX',
+      setMode: 'SET_PLAY_MODE'
     }),
 
     // 限制用户过快切换歌曲
