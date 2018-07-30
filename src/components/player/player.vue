@@ -97,6 +97,7 @@ import Velocity from 'velocity-animate'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
+import Lyric from 'lyric-parser'
 
 export default {
   name: 'player',
@@ -104,7 +105,8 @@ export default {
   data () {
     return {
       songReady: false,
-      curTime: 0
+      curTime: 0,
+      currentLyric: null
     }
   },
 
@@ -140,6 +142,8 @@ export default {
       }
       this.$nextTick(() => { // 延时
         this.$refs.audio.play()
+        // this.currentSong.getSongLyric()
+        this.getLyric()
       })
     },
     playing (playingState) {
@@ -163,6 +167,14 @@ export default {
 
     updateTime (e) {
       this.curTime = e.target.currentTime
+    },
+
+    // 歌词
+    getLyric () {
+      this.currentSong.getSongLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric)
+        console.log(this.currentLyric)
+      })
     },
 
     // 歌曲结束时自动跳转到下一首
