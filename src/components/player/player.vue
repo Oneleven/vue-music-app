@@ -94,6 +94,8 @@
 import { mapGetters, mapMutations } from 'vuex'
 import Velocity from 'velocity-animate'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import { playMode } from 'common/js/config'
+import { shuffle } from 'common/js/util'
 
 export default {
   name: 'player',
@@ -116,7 +118,8 @@ export default {
       'currentSong',
       'playing',
       'currentIndex',
-      'mode'
+      'mode',
+      'sequenceList'
     ]),
     cdClass () {
       return this.playing ? 'startIt' : 'startIt stopIt'
@@ -130,7 +133,10 @@ export default {
   },
 
   watch: {
-    currentSong () {
+    currentSong (newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return
+      }
       this.$nextTick(() => { // 延时
         this.$refs.audio.play()
       })
@@ -162,6 +168,21 @@ export default {
     changeMode () {
       const mode = (this.mode + 1) % 3
       this.setMode(mode)
+      let list = null
+      if (this.mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setList(list)
+    },
+
+    resetCurrentIndex (list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setNext(index)
     },
 
     // 设置progress-bar拖动改变歌曲进度
@@ -192,7 +213,8 @@ export default {
       setPlayingState: 'SET_PLAYING_STATE',
       setPre: 'SET_CURRENT_INDEX',
       setNext: 'SET_CURRENT_INDEX',
-      setMode: 'SET_PLAY_MODE'
+      setMode: 'SET_PLAY_MODE',
+      setList: 'SET_PLAYLIST'
     }),
 
     // 限制用户过快切换歌曲
