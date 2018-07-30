@@ -86,7 +86,8 @@
            ref="audio"
            @canplay= "ready"
            @error= "err"
-           @timeupdate= "updateTime" ></audio>
+           @timeupdate= "updateTime"
+           @ended= "end"></audio>
   </div>
 </template>
 
@@ -164,6 +165,19 @@ export default {
       this.curTime = e.target.currentTime
     },
 
+    // 歌曲结束时自动跳转到下一首
+    end () {
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.handleNext()
+      }
+    },
+
+    loop () {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
     // 设置三种播放模式
     changeMode () {
       const mode = (this.mode + 1) % 3
@@ -178,6 +192,7 @@ export default {
       this.setList(list)
     },
 
+    // 切换模式时当前歌曲不变
     resetCurrentIndex (list) {
       let index = list.findIndex((item) => {
         return item.id === this.currentSong.id

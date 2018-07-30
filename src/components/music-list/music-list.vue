@@ -3,7 +3,7 @@
     <div class="music-list-wrapper">
       <div class="bg-image" :style="bgStyle" ref="bgimage">
         <div class="play">
-          <div class="play-wrapper">
+          <div class="play-wrapper" @click= "randomPlay">
             <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-bofang"></use>
             </svg>
@@ -96,8 +96,16 @@ export default {
       })
     },
     ...mapActions([
-      'playSong'
-    ])
+      'playSong',
+      'random'
+    ]),
+
+    // 点击随机播放
+    randomPlay () {
+      this.random({
+        list: this.songs
+      })
+    }
   },
 
   watch: {

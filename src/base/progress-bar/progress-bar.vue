@@ -46,9 +46,11 @@ export default {
     },
 
     handleClick (e) {
-      console.log(1)
-      console.log(e.offsetX)
-      this._move(e.offsetX)
+      const left = this.$refs.bar.getBoundingClientRect().left
+      const offsetWidth = e.pageX - left
+      this._move(offsetWidth)
+      // 点击小圆点会触发bug，offsetX获取的不对
+      // this._move(e.offsetX)
       this._triggerPersent()
     },
 
