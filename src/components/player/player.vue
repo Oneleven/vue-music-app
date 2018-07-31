@@ -16,12 +16,28 @@
           <h2 class="singer" v-html="currentSong.singer"></h2>
         </div>
         <div class="middle">
-          <div class="cd-wrapper">
-            <img :src="currentSong.image" ref="image" class="scaleImage" :class="cdClass">
+          <div class="cd-container" v-show=false>
+            <div class="cd-wrapper">
+              <img :src="currentSong.image" ref="image" class="scaleImage" :class="cdClass">
+            </div>
+            <p class="lyric">歌词</p>
           </div>
-          <p class="lyric">歌词</p>
+          <scroll class="lyric-wrapper" :data= "currentLyric && currentLyric.lines" ref="lyricScroll">
+            <div class="content">
+              <ul class="lyric-content" v-if="currentLyric">
+                <li class="text"
+                    v-for="(item, index) of currentLyric.lines" :key=index
+                    :class="{'highlight': currentLineNum === index}"
+                    ref="lyricline">{{ item.txt }}</li>
+              </ul>
+            </div>
+          </scroll>
         </div>
         <div class="bottom">
+          <div class="dot-wrapper">
+            <span class="dot" :class="{'active':curShow === 'cd'}"></span>
+            <span class="dot" :class="{'active':curShow === 'lyric'}"></span>
+          </div>
           <div class="progress_wrapper">
             <span class="left-time">{{ format(curTime) }}</span>
             <progress-bar class="progress-bar"
@@ -98,6 +114,7 @@ import ProgressBar from 'base/progress-bar/progress-bar'
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
 import Lyric from 'lyric-parser'
+import scroll from 'base/scroll/scroll'
 
 export default {
   name: 'player',
@@ -106,12 +123,19 @@ export default {
     return {
       songReady: false,
       curTime: 0,
-      currentLyric: null
+      currentLyric: null,
+      currentLineNum: 0,
+      curShow: 'cd'
     }
   },
 
+  created () {
+    this.touch = {}
+  },
+
   components: {
-    ProgressBar
+    ProgressBar,
+    scroll
   },
 
   computed: {
@@ -137,7 +161,7 @@ export default {
 
   watch: {
     currentSong (newSong, oldSong) {
-      if (newSong.id === oldSong.id) {
+      if (!oldSong || !newSong.id || !newSong.url || newSong.id === oldSong.id) {
         return
       }
       this.$nextTick(() => { // 延时
@@ -149,6 +173,7 @@ export default {
     playing (playingState) {
       this.$nextTick(() => {
         playingState ? this.$refs.audio.play() : this.$refs.audio.pause()
+        this.getLyric()
       })
     }
   },
@@ -172,9 +197,23 @@ export default {
     // 歌词
     getLyric () {
       this.currentSong.getSongLyric().then((lyric) => {
-        this.currentLyric = new Lyric(lyric)
+        this.currentLyric = new Lyric(lyric, this.highlightLyric)
         console.log(this.currentLyric)
+        if (this.playing) {
+          this.currentLyric.play()
+        }
       })
+    },
+
+    // 设置高亮及位置
+    highlightLyric ({lineNum, txt}) {
+      this.currentLineNum = lineNum
+      if (lineNum > 6) {
+        const lineEl = this.$refs.lyricline[lineNum - 6]
+        this.$refs.lyricScroll.scrollToElement(lineEl, 1000)
+      } else {
+        this.$refs.lyricScroll.scrollTo(0, 0, 1000)
+      }
     },
 
     // 歌曲结束时自动跳转到下一首
@@ -354,6 +393,20 @@ export default {
         color #ffffff
     .middle
       height 8.34rem
+      .lyric-wrapper
+        height 100%
+        width 100%
+        border 1px solid white
+        overflow hidden
+        .content
+          .lyric-content
+            .text
+              text-align center
+              line-height: .64rem
+              color: hsla(0,0%,100%,.5);
+              font-size: .28rem
+            .highlight
+              color #ffffff
       .cd-wrapper
         height 80vw
         text-align center
@@ -378,13 +431,29 @@ export default {
       display flex
       align-items center
       flex-direction column
+      .dot-wrapper
+        line-height .16rem
+        text-align center
+        width 100%
+        .dot
+          box-sizing border-box
+          display inline-block
+          height .16rem
+          width .16rem
+          border 1px solid #ffffff
+          border-radius 50%
+          background-color #ffffff
+          margin 0 .08rem
+        .active
+          width .4rem
+          border-radius .1rem
       .progress_wrapper
         height .6rem
         color #ffffff
         width 70%
         display flex
         align-items center
-        padding-bottom .2rem
+        padding .2rem 0 .1rem 0
         .progress-bar
           flex 1
         .left-time

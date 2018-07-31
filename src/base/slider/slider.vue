@@ -145,6 +145,5 @@ export default {
       &.active {
         width: 20px;
         border-radius: 5px;
-        background: $color-text-ll;
       }
 </style>
