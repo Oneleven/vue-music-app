@@ -15,14 +15,17 @@
           </div>
           <h2 class="singer" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle">
-          <div class="cd-container" v-show=false>
+        <div class="middle"
+             @touchstart.prevent="handleTouchstart"
+             @touchmove.prevent="handleTouchmove"
+             @touchend="handleTouchend">
+          <div class="cd-container" ref="cdContainer">
             <div class="cd-wrapper">
               <img :src="currentSong.image" ref="image" class="scaleImage" :class="cdClass">
             </div>
-            <p class="lyric">歌词</p>
-          </div>
-          <scroll class="lyric-wrapper" :data= "currentLyric && currentLyric.lines" ref="lyricScroll">
+            <p class="lyric">{{ miniLyric }}</p>
+          </div
+          ><scroll class="lyric-wrapper" :data= "currentLyric && currentLyric.lines" ref="lyricScroll">
             <div class="content">
               <ul class="lyric-content" v-if="currentLyric">
                 <li class="text"
@@ -115,6 +118,10 @@ import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
 import Lyric from 'lyric-parser'
 import scroll from 'base/scroll/scroll'
+import { prefixStyle } from 'common/js/dom'
+
+const Transform = prefixStyle('transform')
+const TransitionDuration = prefixStyle('transition-duration')
 
 export default {
   name: 'player',
@@ -125,7 +132,8 @@ export default {
       curTime: 0,
       currentLyric: null,
       currentLineNum: 0,
-      curShow: 'cd'
+      curShow: 'cd',
+      miniLyric: ''
     }
   },
 
@@ -164,16 +172,23 @@ export default {
       if (!oldSong || !newSong.id || !newSong.url || newSong.id === oldSong.id) {
         return
       }
-      this.$nextTick(() => { // 延时
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+      }
+
+      setTimeout(() => { // 延时
         this.$refs.audio.play()
         // this.currentSong.getSongLyric()
         this.getLyric()
-      })
+      }, 1000)
     },
     playing (playingState) {
       this.$nextTick(() => {
         playingState ? this.$refs.audio.play() : this.$refs.audio.pause()
         this.getLyric()
+        // if (this.currentLyric) {
+        //   this.currentLyric.togglePlay()
+        // }
       })
     }
   },
@@ -187,11 +202,74 @@ export default {
     },
 
     togglePlaying () {
+      if (!this.songReady) {
+        return
+      }
       this.setPlayingState(!this.playing)
+
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
 
     updateTime (e) {
       this.curTime = e.target.currentTime
+    },
+
+    // cd与歌词左右滑动切换
+    handleTouchstart (e) {
+      this.touch.touchStatus = true
+      const touch = e.touches[0]
+      this.touch.startX = touch.pageX
+      this.touch.startY = touch.pageY
+    },
+
+    handleTouchmove (e) {
+      if (!this.touch.touchStatus) {
+        return
+      }
+      const touch = e.touches[0]
+      const deltaX = touch.pageX - this.touch.startX
+      const deltaY = touch.pageY - this.touch.startY
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return
+      }
+      const initialLocation = this.curShow === 'cd' ? 0 : -window.innerWidth
+      const width = Math.min(0, Math.max(-window.innerWidth, initialLocation + deltaX))
+      this.touch.percent = Math.abs(width / window.innerWidth)
+      this.$refs.lyricScroll.$el.style[Transform] = `translate3d(${width}px, 0, 0)`
+      this.$refs.lyricScroll.$el.style[TransitionDuration] = 0
+      this.$refs.cdContainer.style.opacity = 1 - this.touch.percent
+      this.$refs.cdContainer.style[TransitionDuration] = 0
+    },
+
+    handleTouchend (e) {
+      this.touch.touchStatus = false
+      let width
+      let opacity
+      if (this.curShow === 'cd') {
+        if (this.touch.percent > 0.1) {
+          width = -window.innerWidth
+          opacity = 0
+          this.curShow = 'lyric'
+        } else {
+          width = 0
+          opacity = 1
+        }
+      } else {
+        if (this.touch.percent < 0.9) {
+          width = 0
+          opacity = 1
+          this.curShow = 'cd'
+        } else {
+          width = -window.innerWidth
+          opacity = 0
+        }
+      }
+      this.$refs.lyricScroll.$el.style[Transform] = `translate3d(${width}px, 0, 0)`
+      this.$refs.lyricScroll.$el.style[TransitionDuration] = '300ms'
+      this.$refs.cdContainer.style.opacity = opacity
+      this.$refs.cdContainer.style[TransitionDuration] = '300ms'
     },
 
     // 歌词
@@ -202,6 +280,10 @@ export default {
         if (this.playing) {
           this.currentLyric.play()
         }
+      }).catch(() => {
+        this.currentLyric = null
+        this.miniLyric = ''
+        this.currentLineNum = 0
       })
     },
 
@@ -214,6 +296,7 @@ export default {
       } else {
         this.$refs.lyricScroll.scrollTo(0, 0, 1000)
       }
+      this.miniLyric = txt
     },
 
     // 歌曲结束时自动跳转到下一首
@@ -228,6 +311,9 @@ export default {
     loop () {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
     },
     // 设置三种播放模式
     changeMode () {
@@ -253,9 +339,13 @@ export default {
 
     // 设置progress-bar拖动改变歌曲进度
     changePercent (percent) {
-      this.$refs.audio.currentTime = percent * this.currentSong.duration
+      const currentTime = percent * this.currentSong.duration
+      this.currentTime = this.$refs.audio.currentTime = currentTime
       if (!this.playing) {
         this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
       }
     },
 
@@ -296,29 +386,37 @@ export default {
       if (!this.songReady) {
         return
       }
-      let curIndex = this.currentIndex - 1
-      if (curIndex === -1) {
-        curIndex = this.playlist.length - 1
+      if (this.playlist.length === 1) {
+        this.loop()
+      } else {
+        let curIndex = this.currentIndex - 1
+        if (curIndex === -1) {
+          curIndex = this.playlist.length - 1
+        }
+        this.setPre(curIndex)
+        this.setPlayingState(true)
       }
-      this.setPre(curIndex)
-      this.setPlayingState(true)
-
       this.songReady = false
     },
+
     handleNext () {
       if (!this.songReady) {
         return
       }
-      let curIndex = this.currentIndex + 1
-      if (curIndex === this.playlist.length) {
-        curIndex = 0
-      }
-      this.setNext(curIndex)
-      if (!this.playing) {
-        this.togglePlaying()
-      }
-      if (!this.songReady) {
-        return
+      if (this.playlist.length === 1) {
+        this.loop()
+      } else {
+        let curIndex = this.currentIndex + 1
+        if (curIndex === this.playlist.length) {
+          curIndex = 0
+        }
+        this.setNext(curIndex)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+        if (!this.songReady) {
+          return
+        }
       }
       this.songReady = false
     },
@@ -393,11 +491,12 @@ export default {
         color #ffffff
     .middle
       height 8.34rem
+      white-space nowrap
       .lyric-wrapper
         height 100%
         width 100%
-        border 1px solid white
         overflow hidden
+        display inline-block
         .content
           .lyric-content
             .text
@@ -407,23 +506,27 @@ export default {
               font-size: .28rem
             .highlight
               color #ffffff
-      .cd-wrapper
-        height 80vw
-        text-align center
-        img
-          box-sizing border-box
-          border-radius 50%
-          border 10px solid rgba(255, 255, 255, 0.1)
-          height 100%
-        .startIt
-          animation rotate 20s linear infinite
-        .stopIt
-          animation-play-state: paused
-      .lyric
-        line-height .4rem
-        margin-top .6rem
-        text-align center
-        color $fontcolor
+      .cd-container
+        display inline-block
+        width 100%
+        .cd-wrapper
+          height 80vw
+          width 100%
+          text-align center
+          img
+            box-sizing border-box
+            border-radius 50%
+            border 10px solid rgba(255, 255, 255, 0.1)
+            height 100%
+          .startIt
+            animation rotate 20s linear infinite
+          .stopIt
+            animation-play-state: paused
+        .lyric
+          line-height .4rem
+          margin-top .6rem
+          text-align center
+          color $fontcolor
     .bottom
       position absolute
       bottom 1rem
@@ -443,7 +546,7 @@ export default {
           border 1px solid #ffffff
           border-radius 50%
           background-color #ffffff
-          margin 0 .08rem
+          margin 0 .05rem
         .active
           width .4rem
           border-radius .1rem
