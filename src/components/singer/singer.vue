@@ -1,7 +1,8 @@
 <template>
-  <div class="singer-container">
+  <div class="singer-container" ref="singer">
     <song-list :datas="singers"
-               @selectedItem="selectedSinger"></song-list>
+               @selectedItem="selectedSinger"
+               ref="songlist"></song-list>
     <router-view></router-view>
   </div>
 </template>
@@ -12,9 +13,13 @@ import { CODE_OK } from 'api/config'
 import Singer from 'common/js/singer'
 import SongList from 'base/songlist/songlist'
 import {mapMutations} from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 
 export default {
   name: 'home-singer',
+
+  mixins: [playlistMixin],
+
   components: {
     SongList
   },
@@ -27,6 +32,14 @@ export default {
     this._getSingerList()
   },
   methods: {
+    // 设置miniplayer高度遮挡问题
+    handlePlaylist (playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.singer.style.bottom = bottom
+      console.log(11111)
+      this.$refs.songlist.refresh()
+    },
+
     _getSingerList () {
       getSingerList().then((res) => {
         if (res.code === CODE_OK) {

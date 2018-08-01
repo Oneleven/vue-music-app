@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend-container">
+  <div class="recommend-container" ref="recommendContainer">
     <scroll class= "recommend-wrapper" v-if= "recommends.length" ref="scroll" :data="hotSongList">
       <div>
         <div class="slider-wrapper">
@@ -34,25 +34,39 @@ import Slider from 'base/slider/slider'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import { CODE_OK } from 'api/config'
+import { playlistMixin } from 'common/js/mixin'
 
 export default {
   name: 'home-recommend',
+
+  mixins: [playlistMixin],
+
   components: {
     Slider,
     Scroll,
     Loading
   },
+
   data () {
     return {
       recommends: [],
       hotSongList: []
     }
   },
+
   created () {
     this._getRecommend()
     this._getHotSongList()
   },
+
   methods: {
+    // 设置miniplayer最小化遮挡scroll底部滑动问题
+    handlePlaylist (playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.recommendContainer.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
+
     _getRecommend () {
       getRecommend().then((res) => {
         if (res.code === CODE_OK) {

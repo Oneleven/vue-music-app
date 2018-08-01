@@ -87,6 +87,10 @@ export default {
   },
 
   methods: {
+    refresh () {
+      this.$refs.songlist.refresh()
+    },
+
     handleTouchStart (e) {
       this.touchStatus = true
       let index = e.target.getAttribute('data-index')

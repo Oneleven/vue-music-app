@@ -38,12 +38,15 @@ import scroll from 'base/scroll/scroll'
 import songList from 'base/song-list/song-list'
 import { prefixStyle } from 'common/js/dom'
 import { mapActions } from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 
 const MIN_TOP = 40
 const Transform = prefixStyle('transform')
 
 export default {
   name: 'music-list',
+
+  mixins: [playlistMixin],
 
   components: {
     scroll,
@@ -105,6 +108,13 @@ export default {
       this.random({
         list: this.songs
       })
+    },
+
+    // 实现miniplayer高度遮盖scroll高度问题
+    handlePlaylist (playlist) {
+      const bottom = playlist.length > 0 ? '100' : ''
+      this.$refs.scrollwrapper.$el.style.height = 'calc(100vh - ' + bottom + 'px)'
+      this.$refs.scrollwrapper.refresh()
     }
   },
 
@@ -169,7 +179,7 @@ export default {
     top 5.2rem
     width 100%
     // height calc(100vh - 5.2rem)
-    height 600px
+    height 100%
     // transform translateY(-100px) 与scroll组件冲突
     // background-color $backcolor
     .song-list-container
