@@ -169,6 +169,7 @@ export default {
 
   watch: {
     currentSong (newSong, oldSong) {
+      this.getLyric() // 之前放在后面直接被!oldSong给return掉，没有执行到获取歌词的部分
       if (!oldSong || !newSong.id || !newSong.url || newSong.id === oldSong.id) {
         return
       }
@@ -179,16 +180,14 @@ export default {
       setTimeout(() => { // 延时
         this.$refs.audio.play()
         // this.currentSong.getSongLyric()
-        this.getLyric()
-      }, 1000)
+        // this.getLyric()
+      }, 500)
     },
     playing (playingState) {
       this.$nextTick(() => {
+        // this.getLyric()
+        // this.currentLyric.stop()
         playingState ? this.$refs.audio.play() : this.$refs.audio.pause()
-        this.getLyric()
-        // if (this.currentLyric) {
-        //   this.currentLyric.togglePlay()
-        // }
       })
     }
   },
@@ -205,11 +204,10 @@ export default {
       if (!this.songReady) {
         return
       }
-      this.setPlayingState(!this.playing)
-
       if (this.currentLyric) {
         this.currentLyric.togglePlay()
       }
+      this.setPlayingState(!this.playing)
     },
 
     updateTime (e) {
@@ -376,6 +374,9 @@ export default {
     // 限制用户过快切换歌曲
     ready () {
       this.songReady = true
+      // if (this.playing && this.currentLyric) {
+      //   this.currentLyric.play()
+      // }
     },
     err () {
       this.songReady = true
@@ -492,11 +493,14 @@ export default {
     .middle
       height 8.34rem
       white-space nowrap
+      position relative
       .lyric-wrapper
         height 100%
         width 100%
         overflow hidden
         display inline-block
+        position absolute
+        top 0
         .content
           .lyric-content
             .text
@@ -523,7 +527,7 @@ export default {
           .stopIt
             animation-play-state: paused
         .lyric
-          line-height .4rem
+          height .4rem
           margin-top .6rem
           text-align center
           color $fontcolor
