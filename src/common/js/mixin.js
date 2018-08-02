@@ -26,5 +26,4 @@ export const playlistMixin = {
       throw new Error('在组建内实现handlePlaylist函数')
     }
   }
-
 }

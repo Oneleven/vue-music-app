@@ -1,7 +1,15 @@
 <template>
   <div class="songlist-wrapper">
     <ul class="songlist-container">
-        <li v-for="(song, index) of songs" :key="song.id" @click="playSong(song, index)">
+        <li v-for="(song, index) of songs" :key="song.id"
+            @click="playSong(song, index)"
+            :class="{'rank': rank}">
+          <div class="icons" v-show="rank">
+            <img src="./first.png" v-show="index === 0">
+            <img src="./second.png" v-show="index === 1">
+            <img src="./third.png" v-show="index === 2">
+            <span v-show="index >2 ">{{ index + 1 }}</span>
+          </div>
           <div class="song-content">
             <h2>{{ song.name }}</h2>
             <p class="desc">{{ getDesk(song) }}</p>
@@ -22,6 +30,10 @@ export default {
     songs: {
       type: Array,
       default: () => []
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -58,6 +70,25 @@ export default {
       color $fontcolor
       line-height .4rem
       margin-top .08rem
+  .rank
+    display flex
+    align-items center
+    .icons
+      margin-right .6rem
+      img
+        width .5rem
+        height .52rem
+      span
+        text-align center
+        display block
+        font-size .36rem
+        color $maincolor
+        width .5rem
+        height .52rem
+    .song-content
+      p
+        width calc(100vw - 120px)
+
 .loading
   height calc(100vh - 5.2rem)
 </style>

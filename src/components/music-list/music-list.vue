@@ -26,7 +26,8 @@
         <song-list :songs="songs"
                    class="song-list-container"
                    ref="songs"
-                   @playSong = "playingSong"></song-list>
+                   @playSong = "playingSong"
+                   :rank="rank"></song-list>
       </scroll>
     </div>
   </div>
@@ -71,6 +72,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
 

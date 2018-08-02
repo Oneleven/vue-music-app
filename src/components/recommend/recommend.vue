@@ -115,11 +115,7 @@ export default {
 @import '~common/css/global.styl'
 @import '~common/css/mixin.styl'
 .recommend-container
-  position: fixed
-  width: 100%
-  top: 1.76rem
-  bottom: 0
-  background-color #222
+  navStyle()
   .recommend-wrapper
     height 100%
     overflow hidden

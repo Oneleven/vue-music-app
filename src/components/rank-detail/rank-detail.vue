@@ -1,18 +1,18 @@
 <template>
-  <transition name="slide">
-    <music-list :title="title" :gbImage="img" :songs="songs"></music-list>
+  <transition name="slide" >
+    <music-list :gbImage="img" :title="title" :songs="rankSongs" :rank="rank"></music-list>
   </transition>
 </template>
 
 <script>
 import MusicList from 'components/music-list/music-list'
 import { mapGetters } from 'vuex'
-import { getSongList } from 'api/recommend'
+import { getMusicList } from 'api/rank'
 import { CODE_OK } from 'api/config'
 import { createSong } from 'common/js/song'
 
 export default {
-  name: 'recommend-detail',
+  name: 'rank-detail',
 
   components: {
     MusicList
@@ -20,51 +20,57 @@ export default {
 
   data () {
     return {
-      songs: []
+      rankSongs: [],
+      rank: true
     }
   },
 
   created () {
-    this._getSongList()
-  },
-
-  computed: {
-    ...mapGetters([
-      'disc'
-    ]),
-
-    title () {
-      return this.disc.dissname
-    },
-
-    img () {
-      return this.disc.imgurl
-    }
+    this._getMusicList()
   },
 
   methods: {
-    _getSongList () {
-      if (!this.disc.dissid) {
-        this.$router.push('/recommend')
+    _getMusicList () {
+      if (!this.topList.id) {
+        this.$router.push('/rank')
+        return
       }
-      getSongList(this.disc.dissid).then((res) => {
+
+      getMusicList(this.topList.id).then((res) => {
         if (res.code === CODE_OK) {
-          this.songs = this._normalizeSongs(res.cdlist[0].songlist)
+          this.rankSongs = this._normalizeSongs(res.songlist)
         }
       })
     },
 
     _normalizeSongs (list) {
       let ret = []
-      list.forEach((musicData) => {
+      list.forEach((item) => {
+        const musicData = item.data
         if (musicData.songid && musicData.albumid) {
           ret.push(createSong(musicData))
         }
       })
       return ret
     }
-  }
+  },
 
+  computed: {
+    ...mapGetters([
+      'topList'
+    ]),
+
+    title () {
+      return this.topList.topTitle
+    },
+
+    img () {
+      if (this.rankSongs.length) {
+        return this.rankSongs[0].image
+      }
+      return ''
+    }
+  }
 }
 </script>
 
@@ -76,4 +82,5 @@ export default {
   opacity 0
 .slide-enter-active, .slide-leave-active
   transition opacity .5s
+
 </style>

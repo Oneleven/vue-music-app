@@ -102,11 +102,8 @@ export default {
 
 <style scoped lang='stylus'>
 @import '~common/css/global.styl'
+@import '~common/css/mixin.styl'
 
 .singer-container
-  position: fixed
-  width: 100%
-  top: 1.76rem
-  bottom: 0
-  background-color #222
+  navStyle()
 </style>
