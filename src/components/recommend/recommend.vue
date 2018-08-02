@@ -13,7 +13,9 @@
         </div>
         <h1 class="recommend-title">热门歌单推荐</h1>
         <ul class="recommend-list">
-          <li v-for="item of hotSongList" :key=item.dissid>
+          <li v-for="item of hotSongList"
+              :key=item.dissid
+              @click="handleIn(item)">
             <img v-lazy=item.imgurl class="album">
             <div class="list-right">
               <h2 class="song-name">{{item.creator.name}}</h2>
@@ -24,6 +26,7 @@
         <loading v-if="!hotSongList.length" class="loading"></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -35,6 +38,7 @@ import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import { CODE_OK } from 'api/config'
 import { playlistMixin } from 'common/js/mixin'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'home-recommend',
@@ -62,9 +66,21 @@ export default {
   methods: {
     // 设置miniplayer最小化遮挡scroll底部滑动问题
     handlePlaylist (playlist) {
+      if (playlist.length <= 0) {
+        return
+      }
       const bottom = playlist.length > 0 ? '60px' : ''
       this.$refs.recommendContainer.style.bottom = bottom
       this.$refs.scroll.refresh()
+    },
+
+    // 点击跳转路由
+    handleIn (item) {
+      console.log(item)
+      this.$router.push({
+        path: `recommend/${item.dissid}`
+      })
+      this.setDisc(item)
     },
 
     _getRecommend () {
@@ -86,7 +102,11 @@ export default {
         this.$refs.scroll.refresh()
         this.checkLoaded = true
       }
-    }
+    },
+
+    ...mapMutations({
+      setDisc: 'SET_DISC'
+    })
   }
 }
 </script>

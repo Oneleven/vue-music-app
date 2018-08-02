@@ -5,6 +5,7 @@ import HomeRecommend from 'components/recommend/recommend'
 import HomeSearch from 'components/search/search'
 import HomeSinger from 'components/singer/singer'
 import SingerDetail from 'components/singer-detail/singer-detail'
+import RecommendDetail from 'components/recommend-detail/recommend-detail'
 
 Vue.use(Router)
 
@@ -18,7 +19,11 @@ export default new Router({
       component: HomeRank
     }, {
       path: '/recommend',
-      component: HomeRecommend
+      component: HomeRecommend,
+      children: [{
+        path: ':id',
+        component: RecommendDetail
+      }]
     }, {
       path: '/search',
       component: HomeSearch
