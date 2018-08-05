@@ -9,7 +9,10 @@
             @click="handleChoosen(hotkey.k)"><span>{{ hotkey.k }}</span></li>
       </ul>
     </div>
-    <suggest :query="query" v-show="query" @hideKeyBoard="blurInput"></suggest>
+    <suggest :query="query"
+             v-show="query"
+             @hideKeyBoard="blurInput"
+             @select="saveSearch"></suggest>
     <router-view></router-view>
   </div>
 </template>
@@ -19,6 +22,7 @@ import SearchBox from 'base/search-box/search-box'
 import Suggest from 'components/suggest/suggest'
 import { getSearchKey } from 'api/search'
 import { CODE_OK } from 'api/config'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'home-search',
@@ -40,6 +44,10 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'saveSearchHistory'
+    ]),
+
     _getSearchKey () {
       getSearchKey().then((res) => {
         if (res.code === CODE_OK) {
@@ -59,6 +67,11 @@ export default {
     // 把input失焦，从而滚动的时候隐藏键盘
     blurInput () {
       this.$refs.searchBox.blur()
+    },
+
+    // 存储歌曲数据
+    saveSearch () {
+      this.saveSearchHistory(this.query)
     }
   }
 }

@@ -145,6 +145,8 @@ export default {
         const data = createSong(item)
         this.insertSong(data)
       }
+      // 向父组件派发存储歌曲事件
+      this.$emit('select')
     },
 
     hideKeyBoard () {

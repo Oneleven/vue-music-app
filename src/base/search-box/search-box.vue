@@ -43,7 +43,7 @@ export default {
     },
 
     blur () {
-      this.$refs.blurInput.blur()
+      this.$refs.inputQuery.blur()
     }
   },
 
