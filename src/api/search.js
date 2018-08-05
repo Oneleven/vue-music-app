@@ -13,7 +13,7 @@ export function getSearchKey () {
   return jsonp(url, params, options)
 }
 
-export function search (query, page, zhida) {
+export function search (query, page, zhida, perpage) {
   const url = '/api/search'
   const params = Object.assign({}, commonParams, {
     uin: 0,
@@ -27,8 +27,8 @@ export function search (query, page, zhida) {
     ie: 'utf-8',
     sem: 1,
     aggr: 0,
-    perpage: 20,
-    n: 20,
+    perpage,
+    n: perpage,
     p: page,
     remoteplace: 'txt.mqq.all'
   })

@@ -6,7 +6,8 @@
       </svg>
       <input type="text" class="search-text"
                          :placeholder="placeholder"
-                         v-model="query">
+                         v-model="query"
+                         ref="inputQuery">
       <svg class="icon" aria-hidden="true" v-show="query" @click="handleClear">
         <use xlink:href="#icon-cha"></use>
       </svg>
@@ -15,6 +16,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'search-box',
 
@@ -38,12 +40,22 @@ export default {
 
     setQuery (query) {
       this.query = query
+    },
+
+    blur () {
+      this.$refs.blurInput.blur()
     }
   },
 
   created () {
+    let timer
     this.$watch('query', (newQuery) => {
-      this.$emit('query', newQuery)
+      if (timer) {
+        clearTimeout(timer)
+      }
+      timer = setTimeout(() => {
+        this.$emit('query', newQuery)
+      }, 250)
     })
   }
 }

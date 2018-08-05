@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <search-box ref="searchBox" @query="handleQueryChange"></search-box>
-    <div class="hot-search-wrapper" v-if="false">
+    <div class="hot-search-wrapper" v-show="!query">
       <h1>热门搜索</h1>
       <ul class="hot-list">
         <li v-for="hotkey of hotKeys"
@@ -9,7 +9,8 @@
             @click="handleChoosen(hotkey.k)"><span>{{ hotkey.k }}</span></li>
       </ul>
     </div>
-    <suggest :query="query"></suggest>
+    <suggest :query="query" v-show="query" @hideKeyBoard="blurInput"></suggest>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -53,6 +54,11 @@ export default {
 
     handleQueryChange (query) {
       this.query = query
+    },
+
+    // 把input失焦，从而滚动的时候隐藏键盘
+    blurInput () {
+      this.$refs.searchBox.blur()
     }
   }
 }

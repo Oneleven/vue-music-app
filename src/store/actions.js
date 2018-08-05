@@ -34,3 +34,42 @@ export const random = function ({commit}, {list}) {
   commit(types.SET_FULLSCREEN, true)
   commit(types.SET_PLAYING_STATE, true)
 }
+
+export const insertSong = function ({commit, state}, song) {
+  let playlist = state.playlist.slice()
+  let sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+
+  let currentSong = playlist[currentIndex]
+
+  // 在playlist中插入歌曲
+  let fdIndex = findIndex(playlist, song)
+  currentIndex++
+  playlist.splice(currentIndex, 0, song)
+
+  if (fdIndex > -1) {
+    if (fdIndex > currentIndex) {
+      playlist.splice(fdIndex + 1, 1)
+    } else {
+      playlist.splice(fdIndex)
+    }
+  }
+
+  // 在sequencelist中插入歌曲
+  let currentsIndex = findIndex(sequenceList, currentSong) + 1
+  let fdsIndex = findIndex(sequenceList, song)
+  sequenceList.splice(currentsIndex, 0, song)
+
+  if (fdsIndex > currentsIndex) {
+    sequenceList.splice(fdIndex + 1, 1)
+  } else {
+    sequenceList.splice(fdIndex, 1)
+  }
+
+  // 提交commit
+  commit(types.SET_PLAYLIST, playlist)
+  commit(types.SET_SEQUENCE_LIST, sequenceList)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+  commit(types.SET_FULLSCREEN, true)
+  commit(types.SET_PLAYING_STATE, true)
+}
