@@ -9,27 +9,55 @@
             @click="handleChoosen(hotkey.k)"><span>{{ hotkey.k }}</span></li>
       </ul>
     </div>
+    <div class="search-history" v-show="searchHistory.length">
+      <div class="title-wrapper">
+        <span>搜索历史</span>
+        <svg class="icon" aria-hidden="true" @click="showConfirm">
+          <use xlink:href="#icon-shanchu"></use>
+        </svg>
+      </div>
+      <scroll class="scroll" :data="searchHistory" ref="searchScroll">
+        <search-list :searches="searchHistory"
+                    @select="handleChoosen"
+                    @delete="deleteOne"
+                    class="search-list"></search-list>
+      </scroll>
+    </div>
     <suggest :query="query"
              v-show="query"
              @hideKeyBoard="blurInput"
-             @select="saveSearch"></suggest>
+             @select="saveSearch"
+             ref="suggestScroll"></suggest>
     <router-view></router-view>
+    <confirm ref="confirm"
+             title="是否清空所有搜索历史"
+             confirmText="清空"
+             @confirm="clearAll"></confirm>
   </div>
 </template>
 
 <script>
 import SearchBox from 'base/search-box/search-box'
 import Suggest from 'components/suggest/suggest'
+import SearchList from 'base/search-list/search-list'
+import Confirm from 'base/confirm/confirm'
+import Scroll from 'base/scroll/scroll'
 import { getSearchKey } from 'api/search'
 import { CODE_OK } from 'api/config'
-import { mapActions } from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 
 export default {
   name: 'home-search',
 
+  mixins: [playlistMixin],
+
   components: {
     SearchBox,
-    Suggest
+    Suggest,
+    SearchList,
+    Confirm,
+    Scroll
   },
 
   data () {
@@ -39,13 +67,21 @@ export default {
     }
   },
 
+  computed: {
+    ...mapGetters([
+      'searchHistory'
+    ])
+  },
+
   created () {
     this._getSearchKey()
   },
 
   methods: {
     ...mapActions([
-      'saveSearchHistory'
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
     ]),
 
     _getSearchKey () {
@@ -72,6 +108,27 @@ export default {
     // 存储歌曲数据
     saveSearch () {
       this.saveSearchHistory(this.query)
+    },
+
+    deleteOne (item) {
+      this.deleteSearchHistory(item)
+    },
+
+    clearAll () {
+      this.clearSearchHistory()
+    },
+
+    showConfirm () {
+      this.$refs.confirm.show()
+    },
+
+    // 设置miniplayer造成的scroll遮挡
+    handlePlaylist (playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.searchScroll.$el.style.height = 'calc(100vh - 398px - ' + bottom + ')'
+      this.$refs.suggestScroll.$el.style.bottom = bottom
+      this.$refs.searchScroll.refresh()
+      this.$refs.suggestScroll.refresh()
     }
   }
 }
@@ -99,4 +156,23 @@ export default {
         background-color #333333
         color $fontcolor
         border-radius .12rem
+  .search-history
+    height 100%
+    padding 0 .4rem
+    .title-wrapper
+      height .8rem
+      display flex
+      color $fontcolor
+      align-items center
+      justify-content space-between
+      .icon
+        height .35rem
+        width .35rem
+      span
+        font-size .26rem
+    .scroll
+      height calc(100vh - 398px)
+      overflow hidden
+.icon
+  iconfontStyle()
 </style>

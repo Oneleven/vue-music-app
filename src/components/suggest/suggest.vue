@@ -159,7 +159,12 @@ export default {
 
     ...mapActions([
       'insertSong'
-    ])
+    ]),
+
+    // 重新计算scroll内容高度
+    refresh () {
+      this.$refs.suggestScroll.refresh()
+    }
   }
 }
 </script>
