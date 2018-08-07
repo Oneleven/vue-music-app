@@ -95,12 +95,13 @@
           <svg class="icon player" aria-hidden="true" v-show= playing @click.stop= "togglePlaying">
             <use xlink:href="#icon-zanting3"></use>
           </svg>
-          <svg class="icon songlist" aria-hidden="true">
+          <svg class="icon songlist" aria-hidden="true" @click.stop="showPlaylist">
             <use xlink:href="#icon-xiangqing"></use>
           </svg>
         </div>
       </div>
     </transition>
+    <my-playlist ref="myPlaylist"></my-playlist>
     <audio :src="currentSong.url"
            ref="audio"
            @canplay= "ready"
@@ -118,6 +119,7 @@ import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
 import Lyric from 'lyric-parser'
 import scroll from 'base/scroll/scroll'
+import MyPlaylist from 'components/my-playlist/my-playlist'
 import { prefixStyle } from 'common/js/dom'
 
 const Transform = prefixStyle('transform')
@@ -143,7 +145,8 @@ export default {
 
   components: {
     ProgressBar,
-    scroll
+    scroll,
+    MyPlaylist
   },
 
   computed: {
@@ -169,6 +172,9 @@ export default {
 
   watch: {
     currentSong (newSong, oldSong) {
+      if (!newSong) {
+        return
+      }
       this.getLyric() // 之前放在后面直接被!oldSong给return掉，没有执行到获取歌词的部分
       if (!oldSong || !newSong.id || !newSong.url || newSong.id === oldSong.id) {
         return
@@ -193,6 +199,11 @@ export default {
   },
 
   methods: {
+    // 打开播放列表
+    showPlaylist () {
+      this.$refs.myPlaylist.show()
+    },
+
     handleShrink () {
       this.setFullScreen(false)
     },
