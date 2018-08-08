@@ -3,10 +3,16 @@
     <div class="my-songlist-wrapper" v-show="showIt" @click="hide">
       <div class="songlist-wrapper" @click.stop>
         <div class="songlist-header">
-          <svg class="icon icon-shunxu" aria-hidden="true">
+          <svg class="icon icon-status" aria-hidden="true" v-show= "this.mode === 0" @click= "changeMode">
             <use xlink:href="#icon-ttpodicon"></use>
           </svg>
-          <h1>顺序播放</h1>
+          <svg class="icon icon-status" aria-hidden="true" v-show= "this.mode === 1" @click= "changeMode">
+            <use xlink:href="#icon-xunhuan"></use>
+          </svg>
+          <svg class="icon icon-status" aria-hidden="true" v-show= "this.mode === 2" @click= "changeMode">
+            <use xlink:href="#icon-suiji"></use>
+          </svg>
+          <h1>{{ modelText }}</h1>
           <svg class="icon icon-shanchu" aria-hidden="true" @click="showConfirm">
             <use xlink:href="#icon-shanchu"></use>
           </svg>
@@ -49,13 +55,16 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapActions} from 'vuex'
+import {mapMutations, mapActions} from 'vuex'
 import Scroll from 'base/scroll/scroll'
 import Confirm from 'base/confirm/confirm'
 import { playMode } from 'common/js/config'
+import { playerMixin } from 'common/js/mixin'
 
 export default {
   name: 'my-playlist',
+
+  mixins: [playerMixin],
 
   data () {
     return {
@@ -69,12 +78,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'sequenceList',
-      'currentSong',
-      'playlist',
-      'mode'
-    ])
+    // ...mapGetters([
+    //   'sequenceList',
+    //   'currentSong',
+    //   'playlist',
+    //   'mode'
+    // ])
+    modelText () {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.loop ? '循环播放' : '随机播放'
+    }
   },
 
   methods: {
@@ -192,7 +204,7 @@ export default {
         font-size .28rem
         color $fontcolor
         flex 1
-      .icon-shunxu
+      .icon-status
         margin-right .2rem
       .icon-shanchu
         height .35rem

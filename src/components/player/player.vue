@@ -116,17 +116,20 @@ import { mapGetters, mapMutations } from 'vuex'
 import Velocity from 'velocity-animate'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import { playMode } from 'common/js/config'
-import { shuffle } from 'common/js/util'
+// import { shuffle } from 'common/js/util'
 import Lyric from 'lyric-parser'
 import scroll from 'base/scroll/scroll'
 import MyPlaylist from 'components/my-playlist/my-playlist'
 import { prefixStyle } from 'common/js/dom'
+import { playerMixin } from 'common/js/mixin'
 
 const Transform = prefixStyle('transform')
 const TransitionDuration = prefixStyle('transition-duration')
 
 export default {
   name: 'player',
+
+  mixins: [playerMixin],
 
   data () {
     return {
@@ -321,26 +324,26 @@ export default {
       }
     },
     // 设置三种播放模式
-    changeMode () {
-      const mode = (this.mode + 1) % 3
-      this.setMode(mode)
-      let list = null
-      if (this.mode === playMode.random) {
-        list = shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setList(list)
-    },
+    // changeMode () {
+    //   const mode = (this.mode + 1) % 3
+    //   this.setMode(mode)
+    //   let list = null
+    //   if (this.mode === playMode.random) {
+    //     list = shuffle(this.sequenceList)
+    //   } else {
+    //     list = this.sequenceList
+    //   }
+    //   this.resetCurrentIndex(list)
+    //   this.setList(list)
+    // },
 
-    // 切换模式时当前歌曲不变
-    resetCurrentIndex (list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setNext(index)
-    },
+    // // 切换模式时当前歌曲不变
+    // resetCurrentIndex (list) {
+    //   let index = list.findIndex((item) => {
+    //     return item.id === this.currentSong.id
+    //   })
+    //   this.setNext(index)
+    // },
 
     // 设置progress-bar拖动改变歌曲进度
     changePercent (percent) {
@@ -372,10 +375,10 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULLSCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setPre: 'SET_CURRENT_INDEX',
-      setNext: 'SET_CURRENT_INDEX',
-      setMode: 'SET_PLAY_MODE',
-      setList: 'SET_PLAYLIST'
+      setPre: 'SET_CURRENT_INDEX'
+      // setNext: 'SET_CURRENT_INDEX',
+      // setMode: 'SET_PLAY_MODE',
+      // setList: 'SET_PLAYLIST'
     }),
 
     // 限制用户过快切换歌曲
