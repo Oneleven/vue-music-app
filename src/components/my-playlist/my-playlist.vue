@@ -7,12 +7,12 @@
             <use xlink:href="#icon-ttpodicon"></use>
           </svg>
           <h1>顺序播放</h1>
-          <svg class="icon icon-shanchu" aria-hidden="true">
+          <svg class="icon icon-shanchu" aria-hidden="true" @click="showConfirm">
             <use xlink:href="#icon-shanchu"></use>
           </svg>
         </div>
         <scroll class="list-content" ref="playListScroll">
-          <ul class="playlists">
+          <transition-group class="playlists" tag="ul" name="list">
             <li class="playlist-item"
                 v-for="(item, index) of sequenceList" :key=item.id
                 @click="selectItem(item, index)"
@@ -29,7 +29,7 @@
                 <use xlink:href="#icon-cha1"></use>
               </svg>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
           <div class="list-add">
@@ -43,6 +43,7 @@
           <p>关闭</p>
         </div>
       </div>
+      <confirm title="是否清空播放列表" ref="confirm" @confirm="clearAll"></confirm>
     </div>
   </transition>
 </template>
@@ -50,6 +51,7 @@
 <script>
 import {mapGetters, mapMutations, mapActions} from 'vuex'
 import Scroll from 'base/scroll/scroll'
+import Confirm from 'base/confirm/confirm'
 import { playMode } from 'common/js/config'
 
 export default {
@@ -62,7 +64,8 @@ export default {
   },
 
   components: {
-    Scroll
+    Scroll,
+    Confirm
   },
 
   computed: {
@@ -81,8 +84,19 @@ export default {
     }),
 
     ...mapActions([
-      'deleteSong'
+      'deleteSong',
+      'celarSongList'
     ]),
+
+    clearAll () {
+      this.celarSongList()
+      this.hide()
+    },
+
+    // 显示confirm确认
+    showConfirm () {
+      this.$refs.confirm.show()
+    },
 
     show () {
       this.showIt = true
@@ -201,8 +215,13 @@ export default {
             padding-right .16rem
           p
             flex 1
+            ellipsis()
           .currentText
             color hsla(0,0%,100%,.7)
+      .list-enter, .list-leave-to
+        transform translate3d(-100%, 0 , 0)
+      .list-enter-active, .list-leave-active
+        transition all .3s linear
     .list-operate
       padding .4rem
       display flex

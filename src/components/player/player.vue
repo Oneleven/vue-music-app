@@ -172,11 +172,7 @@ export default {
 
   watch: {
     currentSong (newSong, oldSong) {
-      if (!newSong) {
-        return
-      }
-      this.getLyric() // 之前放在后面直接被!oldSong给return掉，没有执行到获取歌词的部分
-      if (!oldSong || !newSong.id || !newSong.url || newSong.id === oldSong.id) {
+      if (!newSong.id || !newSong.url || newSong.id === oldSong.id) {
         return
       }
       if (this.currentLyric) {
@@ -185,14 +181,11 @@ export default {
 
       setTimeout(() => { // 延时
         this.$refs.audio.play()
-        // this.currentSong.getSongLyric()
-        // this.getLyric()
       }, 500)
+      this.getLyric()
     },
     playing (playingState) {
       this.$nextTick(() => {
-        // this.getLyric()
-        // this.currentLyric.stop()
         playingState ? this.$refs.audio.play() : this.$refs.audio.pause()
       })
     }
@@ -283,6 +276,9 @@ export default {
 
     // 歌词
     getLyric () {
+      if (!this.currentSong) {
+        return
+      }
       this.currentSong.getSongLyric().then((lyric) => {
         this.currentLyric = new Lyric(lyric, this.highlightLyric)
         console.log(this.currentLyric)
