@@ -32,12 +32,16 @@ export default {
     beforeScroll: {
       type: Boolean,
       default: false
+    },
+    refreshDealy: {
+      type: Number,
+      default: 20
     }
   },
   mounted () {
     setTimeout(() => {
       this._initScroll()
-    }, 20)
+    }, this.refreshDealy)
   },
   methods: {
     _initScroll () {

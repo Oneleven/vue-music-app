@@ -1,5 +1,5 @@
 import { playMode } from 'common/js/config' // 语意化
-import {loadSearch, loadSong} from 'common/js/cache'
+import {loadSearch, loadSong, loadFavourite} from 'common/js/cache'
 
 const state = {
   singer: {},
@@ -12,7 +12,8 @@ const state = {
   disc: {},
   topList: {},
   searchHistory: loadSearch(), // 从localStorage里读取
-  songHistory: loadSong()
+  songHistory: loadSong(),
+  favouriteList: loadFavourite()
 }
 
 export default state

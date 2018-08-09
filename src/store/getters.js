@@ -18,3 +18,5 @@ export const topList = state => state.topList
 export const searchHistory = state => state.searchHistory
 
 export const songHistory = state => state.songHistory
+
+export const favouriteList = state => state.favouriteList

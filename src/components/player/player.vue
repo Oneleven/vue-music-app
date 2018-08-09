@@ -70,7 +70,9 @@
             <svg class="icon right-icon" aria-hidden="true" @click= "handleNext" :class= "disableCls">
                 <use xlink:href="#icon-kuaijin"></use>
             </svg>
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon" aria-hidden="true"
+                 :class="getFavouriteIcon(currentSong)"
+                 @click="toggleFavourite(currentSong)">
                 <use xlink:href="#icon-aixin1"></use>
             </svg>
           </div>
@@ -182,9 +184,12 @@ export default {
         this.currentLyric.stop()
       }
 
-      setTimeout(() => { // 延时
+      // setTimeout(() => { // 延时
+      //   this.$refs.audio.play()
+      // }, 500)
+      this.$nextTick(() => {
         this.$refs.audio.play()
-      }, 500)
+      })
       this.getLyric()
     },
     playing (playingState) {
@@ -284,7 +289,6 @@ export default {
       }
       this.currentSong.getSongLyric().then((lyric) => {
         this.currentLyric = new Lyric(lyric, this.highlightLyric)
-        console.log(this.currentLyric)
         if (this.playing) {
           this.currentLyric.play()
         }
@@ -600,6 +604,10 @@ export default {
           padding-left 3vw
         .right-icon
           padding-right 3vw
+        .like
+          fill red
+        .dislike
+          fill $miancolor
   .mini-player
     position fixed
     bottom 0

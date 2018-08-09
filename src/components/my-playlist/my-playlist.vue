@@ -17,7 +17,7 @@
             <use xlink:href="#icon-shanchu"></use>
           </svg>
         </div>
-        <scroll class="list-content" ref="playListScroll">
+        <scroll class="list-content" ref="playListScroll" :refreshDealy="refreshDealy">
           <transition-group class="playlists" tag="ul" name="list">
             <li class="playlist-item"
                 v-for="(item, index) of sequenceList" :key=item.id
@@ -28,7 +28,9 @@
               </svg>
               <div class="placeholder" v-show="!showCurrentIcon(item)"></div>
               <p :class="{'currentText':showClassIcon(item)}">{{ item.name }}</p>
-              <svg class="icon icon-like" aria-hidden="true">
+              <svg class="icon icon-like" aria-hidden="true"
+                   :class="getFavouriteIcon(item)"
+                   @click.stop="toggleFavourite(item)">
                 <use xlink:href="#icon-aixin1"></use>
               </svg>
               <svg class="icon" aria-hidden="true" @click.stop="removeOne(item)">
@@ -70,7 +72,8 @@ export default {
 
   data () {
     return {
-      showIt: false
+      showIt: false,
+      refreshDealy: 100
     }
   },
 
@@ -122,11 +125,9 @@ export default {
       this.showIt = true
       setTimeout(() => {
         this.$refs.playListScroll.refresh()
+        this.scrollToCurrent(this.currentSong)
+        console.log(this.sequenceList.length)
       }, 20)
-      // this.$nextTick(() => { // 这是下一次渲染
-      //   this.$refs.playListScroll.refresh()
-      //   this.scrollToCurrent(this.currentSong)
-      // })
     },
 
     hide () {
@@ -233,6 +234,10 @@ export default {
             width .30rem
           .icon-play, .icon-like, .placeholder
             padding-right .16rem
+          .like
+            fill red
+          .dislike
+            fill $miancolor
           p
             flex 1
             ellipsis()

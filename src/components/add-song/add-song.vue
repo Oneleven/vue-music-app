@@ -33,6 +33,12 @@
                  @select="selectSuggest"
                  @hideKeyBoard="blurInput"></suggest>
       </div>
+      <top-tip class="tip-top" ref="topTip">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-duiconverted"></use>
+        </svg>
+        <span class="text">已经添加到播放列表</span>
+      </top-tip>
     </div>
   </transition>
 </template>
@@ -44,6 +50,7 @@ import Tab from 'base/tab/tab'
 import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
 import SearchList from 'base/search-list/search-list'
+import TopTip from 'base/top-tip/top-tip'
 import { searchMixin } from 'common/js/mixin'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -77,7 +84,8 @@ export default {
     Tab,
     Scroll,
     SongList,
-    SearchList
+    SearchList,
+    TopTip
   },
 
   watch: {
@@ -110,12 +118,13 @@ export default {
 
     selectSuggest () {
       this.saveSearch()
+      this.$refs.topTip.show()
     },
 
     playSong (song, index) {
-      console.log(song.getSongLyric)
       if (index !== 0) {
         this.insertSong(song)
+        this.$refs.topTip.show()
       }
     }
   }
@@ -160,6 +169,16 @@ export default {
   .search-result
     .suggest
       top 2.48rem
+  .tip-top
+    height .8rem
+    display flex
+    align-items center
+    justify-content center
+    color $fontcolor
+    .icon
+      width .35rem
+      height .35rem
+      padding-right .2rem
 
 .icon
   iconfontStyle()
