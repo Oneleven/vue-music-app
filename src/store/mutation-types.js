@@ -12,3 +12,5 @@ export const SET_DISC = 'SET_DISC'
 export const SET_TOPLIST = 'SET_TOPLIST'
 
 export const SET_SEARCH_HISTORY = 'SET_SEARCH_HISTORY'
+
+export const SET_SONG_HISTORY = 'SET_SONG_HISTORY'

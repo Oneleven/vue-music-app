@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import Velocity from 'velocity-animate'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import { playMode } from 'common/js/config'
@@ -381,12 +381,15 @@ export default {
       // setList: 'SET_PLAYLIST'
     }),
 
+    ...mapActions([
+      'saveSongHistory'
+    ]),
+
     // 限制用户过快切换歌曲
     ready () {
       this.songReady = true
-      // if (this.playing && this.currentLyric) {
-      //   this.currentLyric.play()
-      // }
+      this.saveSongHistory(this.currentSong)
+      console.log(this.currentSong)
     },
     err () {
       this.songReady = true

@@ -5,6 +5,9 @@ import storage from 'good-storage'
 const SEARCH_KEY = '__search__'
 const SEARCH_MAX_LENGTH = 15
 
+const SONG_KEY = '__song__'
+const SONG_MAX_LENGTH = 100
+
 function insertArray (arr, val, compare, maxLength) {
   const index = arr.findIndex(compare) // compare是一个函数
   if (index === 0) {
@@ -53,4 +56,19 @@ export function deleteSearch (query) {
 export function clearSearch () {
   storage.remove(SEARCH_KEY)
   return []
+}
+
+// 存储歌曲
+export function saveSong (song) {
+  let songs = storage.get(SONG_KEY, [])
+  insertArray(songs, song, (item) => {
+    return item.id === song.id
+  }, SONG_MAX_LENGTH)
+
+  storage.set(SONG_KEY, songs)
+  return songs
+}
+
+export function loadSong () {
+  return storage.get(SONG_KEY, [])
 }

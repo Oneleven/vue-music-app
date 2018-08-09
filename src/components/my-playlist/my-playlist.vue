@@ -38,7 +38,7 @@
           </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="list-add">
+          <div class="list-add" @click="showAddSong">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-jia"></use>
             </svg>
@@ -50,6 +50,7 @@
         </div>
       </div>
       <confirm title="是否清空播放列表" ref="confirm" @confirm="clearAll"></confirm>
+      <add-song ref="addSong"></add-song>
     </div>
   </transition>
 </template>
@@ -59,6 +60,7 @@ import {mapMutations, mapActions} from 'vuex'
 import Scroll from 'base/scroll/scroll'
 import Confirm from 'base/confirm/confirm'
 import { playMode } from 'common/js/config'
+import addSong from 'components/add-song/add-song'
 import { playerMixin } from 'common/js/mixin'
 
 export default {
@@ -74,7 +76,8 @@ export default {
 
   components: {
     Scroll,
-    Confirm
+    Confirm,
+    addSong
   },
 
   computed: {
@@ -99,6 +102,11 @@ export default {
       'deleteSong',
       'celarSongList'
     ]),
+
+    // 显示add-song组件
+    showAddSong () {
+      this.$refs.addSong.show()
+    },
 
     clearAll () {
       this.celarSongList()

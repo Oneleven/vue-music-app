@@ -44,13 +44,13 @@ import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
 import { getSearchKey } from 'api/search'
 import { CODE_OK } from 'api/config'
-import {mapActions, mapGetters} from 'vuex'
-import { playlistMixin } from 'common/js/mixin'
+import {mapActions} from 'vuex'
+import {playlistMixin, searchMixin} from 'common/js/mixin'
 
 export default {
   name: 'home-search',
 
-  mixins: [playlistMixin],
+  mixins: [playlistMixin, searchMixin],
 
   components: {
     SearchBox,
@@ -62,16 +62,15 @@ export default {
 
   data () {
     return {
-      hotKeys: [],
-      query: ''
+      hotKeys: []
+      // query: ''
     }
   },
-
-  computed: {
-    ...mapGetters([
-      'searchHistory'
-    ])
-  },
+  // computed: {
+  //   ...mapGetters([
+  //     'searchHistory'
+  //   ])
+  // },
 
   created () {
     this._getSearchKey()
@@ -92,23 +91,23 @@ export default {
       })
     },
 
-    handleChoosen (name) {
-      this.$refs.searchBox.setQuery(name)
-    },
+    // handleChoosen (name) {
+    //   this.$refs.searchBox.setQuery(name)
+    // },
 
-    handleQueryChange (query) {
-      this.query = query
-    },
+    // handleQueryChange (query) {
+    //   this.query = query
+    // },
 
     // 把input失焦，从而滚动的时候隐藏键盘
-    blurInput () {
-      this.$refs.searchBox.blur()
-    },
+    // blurInput () {
+    //   this.$refs.searchBox.blur()
+    // },
 
-    // 存储歌曲数据
-    saveSearch () {
-      this.saveSearchHistory(this.query)
-    },
+    // // 存储歌曲数据
+    // saveSearch () {
+    //   this.saveSearchHistory(this.query)
+    // },
 
     deleteOne (item) {
       this.deleteSearchHistory(item)
