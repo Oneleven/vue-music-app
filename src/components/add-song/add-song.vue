@@ -8,7 +8,7 @@
         </svg>
       </div>
       <div class="search-box-wrapper">
-        <search-box placeholder="搜索歌曲" @query="handleQueryChange" ></search-box>
+        <search-box placeholder="搜索歌曲" @query="handleQueryChange" ref="searchBox"></search-box>
       </div>
       <div class="tab-wrapper" v-show="!query">
         <tab :tabs="tabs"
@@ -16,7 +16,13 @@
              @switch="switchItem"></tab>
         <div class="tab-content">
           <scroll v-show="currentIndex === 0" :data="songHistory" class="songHistoryScroll" ref="scroll">
-            <song-list :songs="songHistory"></song-list>
+            <song-list :songs="songHistory" @playSong="playSong"></song-list>
+          </scroll>
+          <scroll v-show="currentIndex === 1" :data="searchHistory" class="searchListScroll" ref="searchScroll">
+            <search-list @select="handleChoosen"
+                         @delete="deleteSearchHistory"
+                         :searches="searchHistory"
+                         class="search-list"></search-list>
           </scroll>
         </div>
       </div>
@@ -37,8 +43,9 @@ import Suggest from 'components/suggest/suggest'
 import Tab from 'base/tab/tab'
 import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
+import SearchList from 'base/search-list/search-list'
 import { searchMixin } from 'common/js/mixin'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'add-song',
@@ -59,7 +66,8 @@ export default {
 
   computed: {
     ...mapGetters([
-      'songHistory'
+      'songHistory',
+      'searchHistory'
     ])
   },
 
@@ -68,10 +76,23 @@ export default {
     Suggest,
     Tab,
     Scroll,
-    SongList
+    SongList,
+    SearchList
+  },
+
+  watch: {
+    currentIndex () {
+      setTimeout(() => {
+        this.$refs.searchScroll.refresh()
+      }, 20)
+    }
   },
 
   methods: {
+    ...mapActions([
+      'insertSong'
+    ]),
+
     switchItem (index) {
       this.currentIndex = index
     },
@@ -89,6 +110,13 @@ export default {
 
     selectSuggest () {
       this.saveSearch()
+    },
+
+    playSong (song, index) {
+      console.log(song.getSongLyric)
+      if (index !== 0) {
+        this.insertSong(song)
+      }
     }
   }
 }
@@ -124,6 +152,11 @@ export default {
       .songHistoryScroll
         height 100%
         overflow hidden
+      .searchListScroll
+        height 100%
+        overflow hidden
+        .search-list
+          padding .4rem .6rem 0 .4rem
   .search-result
     .suggest
       top 2.48rem

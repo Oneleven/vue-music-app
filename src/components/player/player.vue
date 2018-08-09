@@ -279,7 +279,7 @@ export default {
 
     // 歌词
     getLyric () {
-      if (!this.currentSong) {
+      if (!this.currentSong || !this.currentSong.getSongLyric) {
         return
       }
       this.currentSong.getSongLyric().then((lyric) => {

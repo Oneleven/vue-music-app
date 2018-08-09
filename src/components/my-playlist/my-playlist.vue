@@ -120,13 +120,13 @@ export default {
 
     show () {
       this.showIt = true
-      // setTimeout(() => {
-      //   this.$refs.playListScroll.refresh()
-      // },20)
-      this.$nextTick(() => {
+      setTimeout(() => {
         this.$refs.playListScroll.refresh()
-        this.scrollToCurrent(this.currentSong)
-      })
+      }, 20)
+      // this.$nextTick(() => { // 这是下一次渲染
+      //   this.$refs.playListScroll.refresh()
+      //   this.scrollToCurrent(this.currentSong)
+      // })
     },
 
     hide () {
