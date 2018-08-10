@@ -106,7 +106,7 @@
     <my-playlist ref="myPlaylist"></my-playlist>
     <audio :src="currentSong.url"
            ref="audio"
-           @canplay= "ready"
+           @play= "ready"
            @error= "err"
            @timeupdate= "updateTime"
            @ended= "end"></audio>
@@ -182,14 +182,18 @@ export default {
       }
       if (this.currentLyric) {
         this.currentLyric.stop()
+        this.curTime = 0
+        this.currentLineNum = ''
       }
-
-      // setTimeout(() => { // 延时
-      //   this.$refs.audio.play()
-      // }, 500)
-      this.$nextTick(() => {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => { // 延时
         this.$refs.audio.play()
-      })
+      }, 500)
+      // this.$nextTick(() => {
+      //   this.$refs.audio.play()
+      // })
       this.getLyric()
     },
     playing (playingState) {
