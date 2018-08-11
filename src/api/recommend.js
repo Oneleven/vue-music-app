@@ -1,7 +1,6 @@
 import jsonp from 'common/js/jsonp'
 import {commonParams, options} from './config'
 import axios from 'axios'
-const evn = process.env.NODE_ENV !== 'production'
 
 export function getRecommend () {
   const url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
@@ -14,7 +13,7 @@ export function getRecommend () {
 }
 
 export function getHotSongList () {
-  const url = evn ? 'api/getHotSongList' : 'http://47.97.127.190/api/getHotSongList'
+  const url = 'api/getHotSongList'
   const params = Object.assign({}, commonParams, {
     platform: 'yqq',
     hostUin: 0,
@@ -34,7 +33,7 @@ export function getHotSongList () {
 }
 
 export function getSongList (disstid) {
-  const url = evn ? 'api/getRecommendDetailList' : 'http://47.97.127.190/api/getRecommendDetailList'
+  const url = 'api/getRecommendDetailList'
   const params = Object.assign({}, commonParams, {
     disstid,
     type: 1,

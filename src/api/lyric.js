@@ -1,9 +1,8 @@
 import {commonParams} from 'api/config'
 import axios from 'axios'
-const evn = process.env.NODE_ENV !== 'production'
 
 export function getLyric (mid) {
-  const url = evn ? '/api/lyric' : 'http://47.97.127.190/api/lyric'
+  const url = 'http://47.97.127.190/api/lyric'
   const data = Object.assign({}, commonParams, {
     songmid: mid,
     platform: 'yqq',

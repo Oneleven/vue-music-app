@@ -1,7 +1,6 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, options } from 'api/config'
 import axios from 'axios'
-const evn = process.env.NODE_ENV !== 'production'
 
 export function getSearchKey () {
   const url = 'https://c.y.qq.com/splcloud/fcgi-bin/gethotkey.fcg'
@@ -15,7 +14,7 @@ export function getSearchKey () {
 }
 
 export function search (query, page, zhida, perpage) {
-  const url = evn ? '/api/search' : 'https://c.y.qq.com/api/search'
+  const url = '/api/search'
   const params = Object.assign({}, commonParams, {
     uin: 0,
     platform: 'h5',
