@@ -49,8 +49,8 @@ export default {
       getSongList(this.singer.id).then((res) => {
         if (res.code === CODE_OK) {
           this.songs = this._normalizeSongs(res.data.list)
-          console.log(this.songs)
-          console.log(this.singer)
+          // console.log(this.songs)
+          // console.log(this.singer)
         }
       })
     },

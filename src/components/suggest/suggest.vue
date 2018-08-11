@@ -81,8 +81,8 @@ export default {
           this.result = this._genResult(res.data)
           // 检查是否有多余的数据
           this._checkMore(res.data)
-          console.log(this.query)
-          console.log(this.result)
+          // console.log(this.query)
+          // console.log(this.result)
         }
       })
     },

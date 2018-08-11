@@ -76,7 +76,7 @@ export default {
 
     // 点击跳转路由
     handleIn (item) {
-      console.log(item)
+      // console.log(item)
       this.$router.push({
         path: `recommend/${item.dissid}`
       })

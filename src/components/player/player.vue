@@ -397,7 +397,7 @@ export default {
     ready () {
       this.songReady = true
       this.saveSongHistory(this.currentSong)
-      console.log(this.currentSong)
+      // console.log(this.currentSong)
     },
     err () {
       this.songReady = true
