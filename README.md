@@ -10,13 +10,10 @@ npm install
 
 # serve with hot reload at localhost:8080
 npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-# vue-music-app
+#####👉[线上体验](http://47.97.127.190:9001/#/recommend)
+
+![](https://ws2.sinaimg.cn/large/0069RVTdgy1fu6vlpjfugj315o0qtk2a.jpg)
+
+![](https://ws2.sinaimg.cn/large/0069RVTdgy1fu6vmvm0nwj315o0s87i8.jpg)
